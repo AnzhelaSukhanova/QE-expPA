@@ -5,6 +5,6 @@
 
 void swap(int *a, int *b);
 int factorial(int n);
-void permute(int start, int size, int num, int sets[]);
+int permute(int start, int size, int num, int sets[]);
 
 #endif //COURSE_SIMP_TOOLS_H
