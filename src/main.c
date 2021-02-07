@@ -158,12 +158,6 @@ main(int argc, char *argv[]) {
             k++;
         }
     }
-    for (i = 1; i < left_perm_qty; i++)
-        for (j = 0; j < left_ult_count; j++)
-            left_perm[i][j] = left_perm[0][j];
-    for (i = 1; i < right_perm_qty; i++)
-        for (j = 0; j < right_ult_count; j++)
-            right_perm[i][j] = right_perm[0][j];
     permute(0, left_ult_count, 0, (int *)left_perm);
     permute(0, right_ult_count, 0, (int *)right_perm);
 
