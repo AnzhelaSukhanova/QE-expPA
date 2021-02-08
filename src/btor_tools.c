@@ -18,7 +18,11 @@ bv_GCF(BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2) //greatest common
 BtorBitVector *
 bv_LKM(BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2) //least common multiple
 {
-    return btor_bv_mul(mm, bv1, btor_bv_udiv(mm, bv2, bv_GCF(mm, bv1, bv2)));
+    BtorBitVector *GCF = bv_GCF(mm, bv1, bv2);
+    if (btor_bv_is_umulo(mm, bv1, btor_bv_udiv(mm, bv2, GCF)))
+        return btor_bv_ones(mm, btor_bv_get_width(bv1));
+    else
+        return btor_bv_mul(mm, bv1, btor_bv_udiv(mm, bv2, GCF));
 }
 
 bool
