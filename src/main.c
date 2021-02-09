@@ -179,7 +179,7 @@ main(int argc, char *argv[]) {
             for (j = 0; j < right_perm_qty; j++) {
                 exp = ult_exp[*left_perm[i]]->e[0];
                 exp1 = ult_exp[*right_perm[j]]->e[1];
-                ulte[0] = btor_node_create_bv_ult(res_btor, exp, exp1);
+                ulte[0] = btor_exp_bv_ulte(res_btor, exp, exp1);
                 for (k = 1; k < right_ult_count; k++) {
                     index1 = right_perm[j][k - 1];
                     index2 = right_perm[j][k];
@@ -198,7 +198,7 @@ main(int argc, char *argv[]) {
                     for (k = 1; k < bound; k++)
                         or_exp = btor_exp_bv_or(res_btor, or_exp, eq[k]);
                 }
-                or_exp = btor_exp_bv_or(res_btor, btor_exp_bv_ulte(res_btor, const_exps[bound], exp), or_exp);
+                or_exp = btor_exp_bv_or(res_btor, btor_exp_bv_ulte(res_btor, const_exps[bound], dif), or_exp);
                 if (ult_count > 1) {
                     and_exps = ult_count == 2? ulte[0] : btor_exp_bv_and_n(res_btor, ulte, ult_count);
                     res_exps[i][j] = btor_exp_bv_and(res_btor, and_exps, or_exp);
