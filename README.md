@@ -13,3 +13,4 @@ The folder **tests** contains the following examples:
 1.in — ∃ x: x ≤ y  
 2.in — ∃ x: 3\*x ≤ y ∧ y ≤ 6\*x  
 3.in — ∃ x: y ≤ 6\*x ∧ y ≤ 3\*x ∧ y ≤ 2\*x  
+4.in — ∃ x: x ≤ 2 ∧ 3 ≤ x  

@@ -29,13 +29,13 @@ bool
 only_this_var(BtorNode *exp, BtorNode *parent, BtorNode *var)
 {
     if (exp->kind > 3) {
-        if (!only_this_var(exp->e[0], exp, var)) {
+        if (!only_this_var(exp->e[0], exp, var) && exp->e[0]->kind != 1) {
             return false;
         }
-        return only_this_var(exp->e[1], exp, var);
+        return (only_this_var(exp->e[1], exp, var) || exp->e[1]->kind == 1);
     }
     else
-        return (exp == var || exp->kind == 1);
+        return (exp == var);
 }
 
 bool
