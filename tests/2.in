@@ -2,4 +2,6 @@
 (set-logic BV)
 (declare-fun y () (_ BitVec 4))
 (assert
- (exists ((x (_ BitVec 4))) (and (or (bvult (bvmul x #b0011) y) (= (bvmul x #b0011) y)) (or (bvult y (bvmul x #b0110)) (= y (bvmul x #b0110))))))
+ (exists ((x (_ BitVec 4))) (and 
+ (or (bvult (bvmul y #b0011) x) (= (bvmul y #b0011) x)) 
+ (or (bvult x (bvmul y #b0111)) (= x (bvmul y #b0111))))))
