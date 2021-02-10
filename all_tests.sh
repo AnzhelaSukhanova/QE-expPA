@@ -5,7 +5,7 @@ IN='*.in'
 
 for i in $IN
     do
-        ./../main $i 'out'"${i::-3}"
+        ./../main $i "${i::-2}"'out'
     done
     
 cd ../

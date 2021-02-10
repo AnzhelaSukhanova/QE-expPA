@@ -20,4 +20,4 @@ out: false
 out: (not (bvult y z))  
 * 6.in — ∃ x: x ≤ 3\*y ∧ z ≤ x ∧ x ≤ t  
 
-To run all tests use: `bash all_tests.sh`
+To run all tests use `bash all_tests.sh`
