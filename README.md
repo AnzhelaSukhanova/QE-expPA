@@ -18,4 +18,4 @@ out: true
 out: false  
 * 5.in — ∃ x: x ≤ y ∧ z ≤ x  
 out: (not (bvult v1 v2))  
-* 6.in — ∃ x: x ≤ 3*y ∧ z ≤ x ∧ x ≤ t  
+* 6.in — ∃ x: x ≤ 3\*y ∧ z ≤ x ∧ x ≤ t  

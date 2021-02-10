@@ -29,10 +29,10 @@ bool
 only_this_var(BtorNode *exp, BtorNode *parent, BtorNode *var)
 {
     if (exp->kind > 3) {
-        if (!only_this_var(exp->e[0], exp, var) && exp->e[0]->kind != 1) {
+        if (!only_this_var(exp->e[0], exp, var) && !btor_node_is_bv_const(exp->e[0])) {
             return false;
         }
-        return (only_this_var(exp->e[1], exp, var) || exp->e[1]->kind == 1);
+        return (only_this_var(exp->e[1], exp, var) || btor_node_is_bv_const(exp->e[1]));
     }
     else
         return (exp == var);
@@ -48,4 +48,19 @@ without_this_var(BtorNode *exp, BtorNode *var)
     }
     else
         return (exp != var);
+}
+
+void
+restore_symbols(Btor *in_btor, Btor *res_btor, BtorNode *exp)
+{
+    if (exp->kind > 3) {
+        restore_symbols(in_btor, res_btor, exp->e[0]);
+        restore_symbols(in_btor, res_btor, exp->e[1]);
+    }
+    else
+        if (btor_node_is_bv_var(exp)) {
+            char *symbol = btor_node_get_symbol(in_btor, exp);
+            //printf("%s\n", symbol);
+            btor_node_set_symbol(res_btor, exp, symbol);
+        }
 }

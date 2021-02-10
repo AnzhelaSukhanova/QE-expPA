@@ -4,7 +4,7 @@
 (declare-fun z () (_ BitVec 4))
 (declare-fun t () (_ BitVec 4))
 (assert
- (exists ((x (_ BitVec 4))) (and (and 
+ (exists ((x (_ BitVec 4))) (and 
  (or (bvult x (bvmul #b0011 y)) (= x (bvmul #b0011 y))) 
- (or (bvult z x) (= z x))) 
+ (or (bvult z x) (= z x)) 
  (or (bvult x t) (= x t)))))
