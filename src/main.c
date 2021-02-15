@@ -52,9 +52,9 @@ main(int argc, char *argv[]) {
     BtorBitVector *LKM = btor_bv_one(btor->mm, bv_size); //d
     int ult_count = 0, eq_count = 0;
     int left_ult_count = 0, right_ult_count = 0; //q and p respectively
-    int ulte_qty = (int) stack_size / 8 + 1; //approximately
-    BtorNode *ulte_exp[ulte_qty];
-    bool only_exists_var_left[ulte_qty], only_exists_var_right[ulte_qty];
+    int ulte_num = (int) stack_size / 8 + 1; //approximately
+    BtorNode *ulte_exp[ulte_num];
+    bool only_exists_var_left[ulte_num], only_exists_var_right[ulte_num];
     BtorNode *exp = NULL;
     BtorNode *const_exp = NULL;
     /*for (i = 1; i < stack_size; i++) {
@@ -160,10 +160,10 @@ main(int argc, char *argv[]) {
     }
     //consider a S-term
     //TODO
-    int left_perm_qty = factorial(left_ult_count); //|S_q|
-    int left_perm[left_perm_qty][left_ult_count]; //S_q
-    int right_perm_qty = factorial(right_ult_count); //|S_p|
-    int right_perm[right_perm_qty][right_ult_count]; //S_p
+    int left_perm_num = factorial(left_ult_count); //|S_q|
+    int left_perm[left_perm_num][left_ult_count]; //S_q
+    int right_perm_num = factorial(right_ult_count); //|S_p|
+    int right_perm[right_perm_num][right_ult_count]; //S_p
     int k = 0, j = 0;
     j = 0;
     char *symbols[btor->bv_vars->count];
@@ -192,14 +192,14 @@ main(int argc, char *argv[]) {
     BtorNode *and_exps;
     BtorNode *or_exp;
     BtorNode *exp1;
-    BtorNode *res_exps[left_perm_qty][right_perm_qty];
+    BtorNode *res_exps[left_perm_num][right_perm_num];
     for (i = 0; i < bound; i++)
         const_exps[i] = btor_exp_bv_const(res_btor, btor_bv_uint64_to_bv(res_btor->mm, i, bv_size));
     printf("%d %d\n", left_ult_count, right_ult_count);
     if (left_ult_count != 0 && right_ult_count != 0) {
         BtorNode *ulte[ult_count - 1];
-        for (i = 0; i < left_perm_qty; i++) {
-            for (j = 0; j < right_perm_qty; j++) {
+        for (i = 0; i < left_perm_num; i++) {
+            for (j = 0; j < right_perm_num; j++) {
                 exp = ulte_exp[left_perm[i][0]]->e[0];
                 exp1 = ulte_exp[right_perm[j][0]]->e[1];
                 BtorNode *dif = btor_exp_bv_sub(res_btor, exp1, exp);
@@ -234,7 +234,7 @@ main(int argc, char *argv[]) {
     }
     else if (left_ult_count != 0) {
         BtorNode *ulte[ult_count];
-        for (i = 0; i < left_perm_qty; i++) {
+        for (i = 0; i < left_perm_num; i++) {
             exp = ulte_exp[left_perm[i][0]]->e[0];
             for (k = left_ult_count - 1; k > 0; k--) {
                 index[0] = left_perm[i][k];
@@ -287,8 +287,8 @@ main(int argc, char *argv[]) {
     else
         printf("The input formula is incorrect");
     BtorNode *res_exp = res_exps[0][0];
-    for (i = 0; i < left_perm_qty; i++) {
-        for (j = 0; j < right_perm_qty; j++) {
+    for (i = 0; i < left_perm_num; i++) {
+        for (j = 0; j < right_perm_num; j++) {
             res_exp = btor_exp_bv_or(res_btor, res_exp, res_exps[i][j]);
         }
     }
