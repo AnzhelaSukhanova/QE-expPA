@@ -12,12 +12,13 @@ Use `make`, to build the project.
 The folder **tests** contains the following examples:  
 * 1.in — ∃ x: x ≤ y  
 out: true  
-* 2.in — ∃ x: 3\*y ≤ x ∧ x ≤ 7\*y  
+* 2.in — ∃ x: y\*3 ≤ x ∧ x ≤ y\*7  
 * 3.in — ∃ x: y ≤ x ∧ 2 ≤ x ∧ z ≤ x   
 * 4.in — ∃ x: x ≤ 2 ∧ 3 ≤ x  
 out: false  
 * 5.in — ∃ x: x ≤ y ∧ z ≤ x  
 out: (not (bvult y z))  
-* 6.in — ∃ x: x ≤ 3\*y ∧ z ≤ x ∧ x ≤ t  
+* 6.in — ∃ x: x ≤ y\*3 ∧ z ≤ x ∧ x ≤ t  
+* 8.in — ∃ x: y\*3 ≤ x ∧ x ≤ y\*6  
 
 To run all tests use `bash all_tests.sh`

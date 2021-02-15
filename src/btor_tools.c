@@ -50,17 +50,29 @@ without_this_var(BtorNode *exp, BtorNode *var)
         return (exp != var);
 }
 
-void
-restore_symbols(Btor *in_btor, Btor *res_btor, BtorNode *exp)
+int
+restore_symbols(Btor *in_btor, Btor *res_btor, BtorNode *exp, char **symbols, int sym_count)
 {
-    if (exp->kind > 3) {
-        restore_symbols(in_btor, res_btor, exp->e[0]);
-        restore_symbols(in_btor, res_btor, exp->e[1]);
-    }
-    else
-        if (btor_node_is_bv_var(exp)) {
-            char *symbol = btor_node_get_symbol(in_btor, exp);
-            //printf("%s\n", symbol);
-            btor_node_set_symbol(res_btor, exp, symbol);
+    if (sizeof(symbols) > sym_count + 1) {
+        if (exp->kind > 3) {
+            sym_count = restore_symbols(in_btor, res_btor, exp->e[0], symbols, sym_count);
+            sym_count = restore_symbols(in_btor, res_btor, exp->e[1], symbols, sym_count);
         }
+        else if (btor_node_is_bv_var(exp)) {
+            bool in_symbols = false;
+            char *symbol = btor_node_get_symbol(in_btor, exp);
+            for (int i = 0; i < sym_count + 1; i++)
+                if (symbols[i] == symbol) {
+                    in_symbols = true;
+                    btor_node_set_symbol(res_btor, exp, symbols[i]);
+                }
+            if (!in_symbols) {
+                //printf("%s\n", symbol);
+                ++sym_count;
+                symbols[sym_count] = symbol;
+                btor_node_set_symbol(res_btor, exp, symbol);
+            }
+        }
+    }
+    return sym_count;
 }
