@@ -50,7 +50,7 @@ without_this_var(BtorNode *exp, BtorNode *var)
         return (exp != var);
 }
 
-int
+/*int
 restore_symbols(Btor *in_btor, Btor *res_btor, BtorNode *exp, char **symbols, int sym_count)
 {
     if (sizeof(symbols) > sym_count + 1) {
@@ -67,7 +67,7 @@ restore_symbols(Btor *in_btor, Btor *res_btor, BtorNode *exp, char **symbols, in
                     btor_node_set_symbol(res_btor, exp, symbols[i]);
                 }
             if (!in_symbols) {
-                //printf("%s\n", symbol);
+                printf("%s\n", symbol);
                 ++sym_count;
                 symbols[sym_count] = symbol;
                 btor_node_set_symbol(res_btor, exp, symbol);
@@ -75,4 +75,4 @@ restore_symbols(Btor *in_btor, Btor *res_btor, BtorNode *exp, char **symbols, in
         }
     }
     return sym_count;
-}
+}*/

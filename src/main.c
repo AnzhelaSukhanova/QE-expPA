@@ -17,7 +17,6 @@ int
 main(int argc, char *argv[]) {
     assert(argc > 1);
     Btor *btor = boolector_new();
-    Btor *res_btor = boolector_new();
     char *error_msg;
     int status;
     FILE *fd_in = fopen(argv[1], "r");
@@ -166,18 +165,14 @@ main(int argc, char *argv[]) {
     int right_perm[right_perm_num][right_ult_count]; //S_p
     int k = 0, j = 0;
     j = 0;
-    char *symbols[btor->bv_vars->count];
-    int sym_count = -1;
     for (i = 0; i < ult_count; i++) {
         if (only_exists_var_left[i]) {
             right_perm[0][j] = i;
             j++;
-            sym_count = restore_symbols(btor, res_btor, ulte_exp[i]->e[1], symbols, sym_count);
         }
         else {
             left_perm[0][k] = i;
             k++;
-            sym_count = restore_symbols(btor, res_btor, ulte_exp[i]->e[0], symbols, sym_count);
         }
     }
     permute(0, left_ult_count, 0, (int *)left_perm);
@@ -186,7 +181,7 @@ main(int argc, char *argv[]) {
     int index[2];
     uint64_t bound = btor_bv_to_uint64(LKM); //d
     BtorNode *const_exps[bound + 1]; //c
-    const_exps[bound] = btor_exp_bv_const(res_btor, LKM);
+    const_exps[bound] = btor_exp_bv_const(btor, LKM);
     BtorNode *eq[bound + 1];
     BtorNode *ult;
     BtorNode *and_exps;
@@ -194,7 +189,7 @@ main(int argc, char *argv[]) {
     BtorNode *exp1;
     BtorNode *res_exps[left_perm_num][right_perm_num];
     for (i = 0; i < bound; i++)
-        const_exps[i] = btor_exp_bv_const(res_btor, btor_bv_uint64_to_bv(res_btor->mm, i, bv_size));
+        const_exps[i] = btor_exp_bv_const(btor, btor_bv_uint64_to_bv(btor->mm, i, bv_size));
     printf("%d %d\n", left_ult_count, right_ult_count);
     if (left_ult_count != 0 && right_ult_count != 0) {
         BtorNode *ulte[ult_count - 1];
@@ -202,30 +197,28 @@ main(int argc, char *argv[]) {
             for (j = 0; j < right_perm_num; j++) {
                 exp = ulte_exp[left_perm[i][0]]->e[0];
                 exp1 = ulte_exp[right_perm[j][0]]->e[1];
-                BtorNode *dif = btor_exp_bv_sub(res_btor, exp1, exp);
-                ulte[0] = btor_exp_bv_ulte(res_btor, exp, exp1);
+                ulte[0] = btor_exp_bv_ulte(btor, exp, exp1);
                 for (k = 1; k < right_ult_count; k++) {
                     index[0] = right_perm[j][k - 1];
                     index[1] = right_perm[j][k];
-                    ulte[k] = btor_exp_bv_ulte(res_btor, ulte_exp[index[0]]->e[1], ulte_exp[index[1]]->e[1]);
+                    ulte[k] = btor_exp_bv_ulte(btor, ulte_exp[index[0]]->e[1], ulte_exp[index[1]]->e[1]);
                 }
                 for (k = left_ult_count - 1; k > 0; k--) {
                     index[0] = left_perm[i][k];
                     index[1] = left_perm[i][k - 1];
-                    ulte[ult_count - k - 1] = btor_exp_bv_ulte(res_btor, ulte_exp[index[0]]->e[0], ulte_exp[index[1]]->e[0]);
+                    ulte[ult_count - k - 1] = btor_exp_bv_ulte(btor, ulte_exp[index[0]]->e[0], ulte_exp[index[1]]->e[0]);
                 }
+                BtorNode *dif = btor_exp_bv_sub(btor, exp1, exp);
                 for (k = 0; k <= bound; k++)
-                    eq[k] = btor_exp_eq(res_btor, dif, const_exps[k]);
+                    eq[k] = btor_exp_eq(btor, dif, const_exps[k]);
                 or_exp = eq[0];
-                if (bound != 1) {
-                    for (k = 1; k <= bound; k++)
-                        or_exp = btor_exp_bv_or(res_btor, or_exp, eq[k]);
-                }
-                ult = btor_exp_bv_ult(res_btor, const_exps[bound], dif);
-                or_exp = btor_exp_bv_or(res_btor, or_exp, ult);
+                for (k = 1; k <= bound; k++)
+                    or_exp = btor_exp_bv_or(btor, or_exp, eq[k]);
+                ult = btor_exp_bv_ult(btor, const_exps[bound], dif);
+                or_exp = btor_exp_bv_or(btor, or_exp, ult);
                 if (ult_count > 1) {
-                    and_exps = ult_count == 2? ulte[0] : btor_exp_bv_and_n(res_btor, ulte, ult_count - 1);
-                    res_exps[i][j] = btor_exp_bv_and(res_btor, and_exps, or_exp);
+                    and_exps = ult_count == 2? ulte[0] : btor_exp_bv_and_n(btor, ulte, ult_count - 1);
+                    res_exps[i][j] = btor_exp_bv_and(btor, and_exps, or_exp);
                 }
                 else
                     res_exps[i][j] = or_exp;
@@ -239,20 +232,20 @@ main(int argc, char *argv[]) {
             for (k = left_ult_count - 1; k > 0; k--) {
                 index[0] = left_perm[i][k];
                 index[1] = left_perm[i][k - 1];
-                ulte[ult_count - k - 1] = btor_exp_bv_ulte(res_btor, ulte_exp[index[0]]->e[0], ulte_exp[index[1]]->e[0]);
+                ulte[ult_count - k - 1] = btor_exp_bv_ulte(btor, ulte_exp[index[0]]->e[0], ulte_exp[index[1]]->e[0]);
             }
             for (k = 0; k <= bound; k++)
-                eq[k] = btor_exp_eq(res_btor, exp, const_exps[k]);
+                eq[k] = btor_exp_eq(btor, exp, const_exps[k]);
             or_exp = eq[0];
             if (bound != 1) {
                 for (k = 1; k <= bound; k++)
-                    or_exp = btor_exp_bv_or(res_btor, or_exp, eq[k]);
+                    or_exp = btor_exp_bv_or(btor, or_exp, eq[k]);
             }
-            ult = btor_exp_bv_ult(res_btor, const_exps[bound], exp);
-            or_exp = btor_exp_bv_or(res_btor, ult, or_exp);
+            ult = btor_exp_bv_ult(btor, const_exps[bound], exp);
+            or_exp = btor_exp_bv_or(btor, ult, or_exp);
             if (ult_count > 1) {
-                and_exps = ult_count == 2? ulte[0] : btor_exp_bv_and_n(res_btor, ulte, ult_count - 1);
-                res_exps[i][0] = btor_exp_bv_and(res_btor, and_exps, or_exp);
+                and_exps = ult_count == 2? ulte[0] : btor_exp_bv_and_n(btor, ulte, ult_count - 1);
+                res_exps[i][0] = btor_exp_bv_and(btor, and_exps, or_exp);
             }
             else
                 res_exps[i][0] = or_exp;
@@ -265,20 +258,20 @@ main(int argc, char *argv[]) {
             for (k = 1; k < right_ult_count; k++) {
                 index[0] = right_perm[j][k - 1];
                 index[1] = right_perm[j][k];
-                ulte[k - 1] = btor_exp_bv_ulte(res_btor, ulte_exp[index[0]]->e[1], ulte_exp[index[1]]->e[1]);
+                ulte[k - 1] = btor_exp_bv_ulte(btor, ulte_exp[index[0]]->e[1], ulte_exp[index[1]]->e[1]);
             }
             for (k = 0; k <= bound; k++)
-                eq[k] = btor_exp_eq(res_btor, exp, const_exps[k]);
+                eq[k] = btor_exp_eq(btor, exp, const_exps[k]);
             or_exp = eq[0];
             if (bound != 1) {
                 for (k = 1; k <= bound; k++)
-                    or_exp = btor_exp_bv_or(res_btor, or_exp, eq[k]);
+                    or_exp = btor_exp_bv_or(btor, or_exp, eq[k]);
             }
-            ult = btor_exp_bv_ult(res_btor, const_exps[bound], exp);
-            or_exp = btor_exp_bv_or(res_btor, ult, or_exp);
+            ult = btor_exp_bv_ult(btor, const_exps[bound], exp);
+            or_exp = btor_exp_bv_or(btor, ult, or_exp);
             if (ult_count > 1) {
-                and_exps = ult_count == 2? ulte[0] : btor_exp_bv_and_n(res_btor, ulte, ult_count - 1);
-                res_exps[0][j] = btor_exp_bv_and(res_btor, and_exps, or_exp);
+                and_exps = ult_count == 2? ulte[0] : btor_exp_bv_and_n(btor, ulte, ult_count - 1);
+                res_exps[0][j] = btor_exp_bv_and(btor, and_exps, or_exp);
             }
             else
                 res_exps[0][j] = or_exp;
@@ -289,17 +282,16 @@ main(int argc, char *argv[]) {
     BtorNode *res_exp = res_exps[0][0];
     for (i = 0; i < left_perm_num; i++) {
         for (j = 0; j < right_perm_num; j++) {
-            res_exp = btor_exp_bv_or(res_btor, res_exp, res_exps[i][j]);
+            res_exp = btor_exp_bv_or(btor, res_exp, res_exps[i][j]);
         }
     }
-    //btor_simplify_exp(res_btor, res_exp);
-    btor_dumpsmt_dump_node(res_btor, fd_out, res_exp, -1);
-    //boolector_dump_smt2 (res_btor, fd_out);
+    //btor_simplify_exp(btor, res_exp);
+    btor_dumpsmt_dump_node(btor, fd_out, res_exp, -1);
+    //boolector_dump_smt2 (btor, fd_out);
 
     //there is an inequation where x occurs in an exponential term
     //TODO
 
-    boolector_delete (res_btor);
     boolector_delete (btor);
     fclose(fd_out);
     return 0;
