@@ -9,6 +9,8 @@ Use `make`, to build the project.
 `./main tests/<test_file> <out_file>`
 
 ## Tests
+The implementation is currently working for formulas like ∃ x: (⋀ n\_i * y\_i ≤ x) ∧ (⋀ x ≤ m\_j * y\_j), where y — variables, n, m — fixed size bit vectors.  
+
 The folder **tests** contains the following examples:  
 * 1.in — ∃ x: x ≤ y  
 out: (not (and (not (bvult #b0001 y)) (not (= y #b0000))))  

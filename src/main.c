@@ -89,7 +89,6 @@ main(int argc, char *argv[]) {
                     eq_count++;
                     break;
                 case 9: //MUL
-                    //printf("%d %d\n", exp->e[0]->kind, exp->e[1]->kind);
                     assert(btor_node_is_bv_const(exp->e[0]) && btor_node_is_param(exp->e[1]) ||
                            btor_node_is_param(exp->e[0]) && btor_node_is_bv_const(exp->e[1]) ||
                            btor_node_is_bv_const(exp->e[0]) && btor_node_is_bv_var(exp->e[1]) ||
@@ -126,7 +125,7 @@ main(int argc, char *argv[]) {
             coef = btor_node_is_inverted(const_exp) ? btor_node_bv_const_get_invbits(const_exp)
                                                     : btor_node_bv_const_get_bits(const_exp);
             multiplier[i] = btor_bv_udiv(btor->mm, LKM, coef);
-            /*if (!btor_bv_is_one(multiplier[i]))
+            if (!btor_bv_is_one(multiplier[i]))
                 if (only_exists_var_left[i])
                 {
                     ulte_exp[i] = btor_exp_bv_ult(btor,
@@ -137,7 +136,7 @@ main(int argc, char *argv[]) {
                     ulte_exp[i] = btor_exp_bv_ult(btor,
                                                  btor_exp_bv_mul(btor, ulte_exp[i]->e[0], btor_exp_bv_const(btor, multiplier[i])),
                                                  ulte_exp[i]->e[1]);
-                }*/
+                }
         }
     }
     if (btor_bv_is_zero(LKM)) {
@@ -285,9 +284,7 @@ main(int argc, char *argv[]) {
             res_exp = btor_exp_bv_or(btor, res_exp, res_exps[i][j]);
         }
     }
-    //btor_simplify_exp(btor, res_exp);
     btor_dumpsmt_dump_node(btor, fd_out, res_exp, -1);
-    //boolector_dump_smt2 (btor, fd_out);
 
     //there is an inequation where x occurs in an exponential term
     //TODO

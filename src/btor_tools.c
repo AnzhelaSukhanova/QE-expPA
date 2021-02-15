@@ -7,7 +7,6 @@ bv_GCF(BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2) //greatest common
     if (compare == 0)
         return bv1;
     BtorBitVector *div = btor_bv_new(mm, btor_bv_get_width(bv1));
-    //btor_bv_print(bv1); btor_bv_print(bv2);
     if (compare == -1)
         div = bv_GCF(mm, bv1, btor_bv_sub(mm, bv2, bv1));
     else
