@@ -17,6 +17,7 @@ int
 main(int argc, char *argv[]) {
     assert(argc > 1);
     Btor *btor = boolector_new();
+    btor_opt_set (btor, BTOR_OPT_PRETTY_PRINT, 1);
     char *error_msg;
     int status;
     FILE *fd_in = fopen(argv[1], "r");
@@ -48,7 +49,7 @@ main(int argc, char *argv[]) {
     //3rd step
     //x occurs linearly in every inequation occurring in the formula
     BtorBitVector *coef = btor_bv_one(btor->mm, bv_size);
-    BtorBitVector *LKM = btor_bv_one(btor->mm, bv_size); //d
+    BtorBitVector *LCM = btor_bv_one(btor->mm, bv_size); //d
     int ult_count = 0, eq_count = 0;
     int left_ult_count = 0, right_ult_count = 0; //q and p respectively
     int ulte_num = (int) stack_size / 8 + 1; //approximately
@@ -78,7 +79,7 @@ main(int argc, char *argv[]) {
                         left_ult_count++;
                     assert(only_exists_var_left[ult_count] && without_this_var(exp->e[1], exists_var) ||
                            only_exists_var_right[ult_count] && without_this_var(exp->e[0], exists_var));
-                    ulte_exp[ult_count] = exp; //to multiply up to LKM a little bit later
+                    ulte_exp[ult_count] = exp; //to multiply up to LCM a little bit later
                     ult_count++;
                     break;
                 case 6:  //EQ
@@ -96,7 +97,7 @@ main(int argc, char *argv[]) {
                     const_exp = btor_node_is_bv_const(exp->e[0]) ? exp->e[0] : exp->e[1];
                     coef = btor_node_is_inverted(const_exp) ? btor_node_bv_const_get_invbits(const_exp)
                                                             : btor_node_bv_const_get_bits(const_exp);
-                    LKM = bv_LKM(btor->mm, LKM, coef);
+                    LCM = bv_LCM(btor->mm, LCM, coef);
                     break;
                 case 5:  //AND
                     assert(btor_node_is_param(exp->e[0]) || btor_node_is_bv_and(exp->e[0]) || btor_node_is_bv_ult(exp->e[0]) ||
@@ -124,7 +125,7 @@ main(int argc, char *argv[]) {
             const_exp = btor_node_is_bv_const(mul_exp->e[0]) ? mul_exp->e[0] : mul_exp->e[1];
             coef = btor_node_is_inverted(const_exp) ? btor_node_bv_const_get_invbits(const_exp)
                                                     : btor_node_bv_const_get_bits(const_exp);
-            multiplier[i] = btor_bv_udiv(btor->mm, LKM, coef);
+            multiplier[i] = btor_bv_udiv(btor->mm, LCM, coef);
             if (!btor_bv_is_one(multiplier[i]))
                 if (only_exists_var_left[i])
                 {
@@ -139,15 +140,15 @@ main(int argc, char *argv[]) {
                 }
         }
     }
-    if (btor_bv_is_zero(LKM)) {
+    if (btor_bv_is_zero(LCM)) {
         fprintf(fd_out, "false");
         fclose(fd_out);
         return 0;
     }
-    btor_bv_print(LKM);
+    btor_bv_print(LCM);
 
     int power = 0; //r
-    uint64_t mantis = btor_bv_to_uint64(LKM); //d_0
+    uint64_t mantis = btor_bv_to_uint64(LCM); //d_0
     while (mantis % 2 == 0) { //decompose d as follows: d = 2^r * d_0
         mantis = mantis / 2;
         power++;
@@ -178,9 +179,9 @@ main(int argc, char *argv[]) {
     permute(0, right_ult_count, 0, (int *)right_perm);
 
     int index[2];
-    uint64_t bound = btor_bv_to_uint64(LKM); //d
+    uint64_t bound = btor_bv_to_uint64(LCM); //d
     BtorNode *const_exps[bound + 1]; //c
-    const_exps[bound] = btor_exp_bv_const(btor, LKM);
+    const_exps[bound] = btor_exp_bv_const(btor, LCM);
     BtorNode *eq[bound + 1];
     BtorNode *ult;
     BtorNode *and_exps;
@@ -236,10 +237,8 @@ main(int argc, char *argv[]) {
             for (k = 0; k <= bound; k++)
                 eq[k] = btor_exp_eq(btor, exp, const_exps[k]);
             or_exp = eq[0];
-            if (bound != 1) {
-                for (k = 1; k <= bound; k++)
-                    or_exp = btor_exp_bv_or(btor, or_exp, eq[k]);
-            }
+            for (k = 1; k <= bound; k++)
+                or_exp = btor_exp_bv_or(btor, or_exp, eq[k]);
             ult = btor_exp_bv_ult(btor, const_exps[bound], exp);
             or_exp = btor_exp_bv_or(btor, ult, or_exp);
             if (ult_count > 1) {
@@ -262,10 +261,8 @@ main(int argc, char *argv[]) {
             for (k = 0; k <= bound; k++)
                 eq[k] = btor_exp_eq(btor, exp, const_exps[k]);
             or_exp = eq[0];
-            if (bound != 1) {
-                for (k = 1; k <= bound; k++)
-                    or_exp = btor_exp_bv_or(btor, or_exp, eq[k]);
-            }
+            for (k = 1; k <= bound; k++) 
+                or_exp = btor_exp_bv_or(btor, or_exp, eq[k]);
             ult = btor_exp_bv_ult(btor, const_exps[bound], exp);
             or_exp = btor_exp_bv_or(btor, ult, or_exp);
             if (ult_count > 1) {
