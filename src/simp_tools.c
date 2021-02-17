@@ -1,37 +1,27 @@
 #include "simp_tools.h"
 
 void
-swap(int *a, int *b)
+swap(int *arr, int a, int b)
 {
-    int c;
-    c = *a;
-    *a = *b;
-    *b = c;
+    int c = arr[a];
+    arr[a] = arr[b];
+    arr[b] = c;
 }
 
-int
-factorial(int n)
+bool
+next_permutation(int *perm, int size)
 {
-    return (n==1 || n==0) ? 1: n * factorial(n - 1);
-}
-
-int
-permute(int start, int size, int num, int sets[])
-{
-    if (start != size)
-    {
-        for (int i = start; i < size; i++)
-        {
-            swap(sets + start, sets + i);
-            if (start + 1 < size)
-                num = permute(start + 1, size, num, sets);
-            else {
-                for (int j = 0; j < size; j++)
-                    (sets + num * size)[j] = sets[j];
-                return ++num;
-            }
-            swap(sets + start, sets + i);
-        }
-    }
-    return num;
+    int j = size - 2;
+    while (j != -1 && perm[j] >= perm[j + 1])
+        j--;
+    if (j == -1)
+        return false;
+    int k = size - 1;
+    while (perm[j] >= perm[k])
+        k--;
+    swap(perm, j, k);
+    int l = j + 1, r = size - 1;
+    while (l < r)
+        swap(perm, l++, r--);
+    return true;
 }

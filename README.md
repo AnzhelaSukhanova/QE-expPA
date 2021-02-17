@@ -13,7 +13,7 @@ The implementation is currently working for formulas like ∃ x: (⋀ n\_i * y\_
 
 The folder **tests** contains the following examples:  
 * 1.in — ∃ x: x ≤ y  
-out: (not (and (not (bvult #b0001 y)) (not (= y #b0000))))  
+out: (not (and (not (= y #b0001)) (not (= y #b0000)) (not (bvult #b0001 y))))  
 * 2.in — ∃ x: y\*3 ≤ x ∧ x ≤ y\*7  
 * 3.in — ∃ x: y ≤ x ∧ 2 ≤ x ∧ z ≤ x   
 * 4.in — ∃ x: x ≤ 2 ∧ 3 ≤ x  
@@ -23,4 +23,4 @@ out: false
 * 7.in — ∃ x: x\*3 ≤ y ∧ y ≤ x\*6 (in progress)  
 * 8.in — ∃ x: y\*3 ≤ x ∧ x ≤ y\*6  
 
-To run all tests use `bash all_tests.sh`
+To run all tests use `sh all_tests.sh`
