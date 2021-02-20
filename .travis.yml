@@ -1,0 +1,10 @@
+language: c
+install:
+  - git clone https://github.com/boolector/boolector
+  - cd boolector
+  - ./contrib/setup-lingeling.sh
+  - ./contrib/setup-btor2tools.sh
+  - ./configure.sh && cd build && make
+script:
+  - make
+  - sh all_tests.sh

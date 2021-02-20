@@ -2,7 +2,7 @@
 The implementation of elimination of quantifiers for Presburger arithmetic expanded by function 2^x (in progress).
 
 ## Build
-Download and build boolector with support for the **MiniSAT** according to the instructions given here: https://github.com/Boolector/boolector.  
+Download and build boolector according to the instructions given here: https://github.com/Boolector/boolector.  
 Use `make`, to build the project.
 
 ## Use
