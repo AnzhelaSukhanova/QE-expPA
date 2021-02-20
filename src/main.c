@@ -14,12 +14,21 @@ extern "C" {
 void
 check_out (Btor *btor, BtorNode *res_exp, char *filename)
 {
-    btor_assert_exp (btor, res_exp);
-    int result = boolector_sat (btor);
-    if (result == 10 || res_exp == btor_exp_false (btor))
-        printf ("%s: PASS\n", filename);
-    else
-        printf ("%s: NOT PASS\n", filename);
+    if (res_exp == btor_exp_false (btor)) {
+        int result = boolector_sat (btor);
+        if (result != 10)
+            printf ("%s: PASS\n", filename);
+        else
+            printf ("%s: NOT PASS\n", filename);
+    }
+    else {
+        btor_assert_exp (btor, res_exp);
+        int result = boolector_sat (btor);
+        if (result == 10)
+            printf ("%s: PASS\n", filename);
+        else
+            printf ("%s: NOT PASS\n", filename);
+    }
 }
 
 int
