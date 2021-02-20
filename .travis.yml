@@ -5,6 +5,7 @@ install:
   - ./contrib/setup-lingeling.sh
   - ./contrib/setup-btor2tools.sh
   - ./configure.sh && cd build && make
+  - cd ../../
 script:
   - make
   - sh all_tests.sh
