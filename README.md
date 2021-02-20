@@ -1,5 +1,5 @@
 # QE_expPA
-[![Build Status](https://travis-ci.org/AnzhelaSukhanova/Minimal_GDB.svg?branch=main)]  
+[![Build Status](https://travis-ci.org/AnzhelaSukhanova/QE_expPA.svg?branch=main)](https://travis-ci.org/AnzhelaSukhanova/QE_expPA)  
 The implementation of elimination of quantifiers for Presburger arithmetic expanded by function 2^x (in progress).
 
 ## Build
