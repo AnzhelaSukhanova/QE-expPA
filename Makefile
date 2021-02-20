@@ -10,13 +10,13 @@ main: main.o simp_tools.o btor_tools.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 	rm -f *.o
 
-main.o: src/simp_tools.h src/btor_tools.h
+main.o: src/btor_tools.h
 	$(CXX) -c src/main.c $(CPPFLAGS)
 	
 simp_tools.o: src/simp_tools.h
 	$(CXX) -c src/simp_tools.c
 	
-btor_tools.o: src/btor_tools.h
+btor_tools.o: src/btor_tools.h src/simp_tools.h
 	$(CXX) -c src/btor_tools.c $(CPPFLAGS)
 
 clean:
