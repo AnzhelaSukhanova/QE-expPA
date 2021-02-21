@@ -21,7 +21,8 @@ out: (not (and (not (= y #b0001)) (not (= y #b0000)) (not (bvult #b0001 y))))
 out: false  
 * 5.in — ∃ x: x ≤ y ∧ z ≤ x  
 * 6.in — ∃ x: x ≤ y\*3 ∧ z ≤ x ∧ x ≤ t  
-* 7.in — ∃ x: x\*3 ≤ y ∧ y ≤ x\*6 (in progress)  
-* 8.in — ∃ x: y\*3 ≤ x ∧ x ≤ y\*6  
+* 7.in — ∃ x: y\*3 ≤ x ∧ x ≤ y\*12  
+* 8.in — ∃ x: x\*3 ≤ y ∧ y ≤ x\*6  
+* 9.in — ∃ x: x\*14 ≤ y ∧ y ≤ x\*13  
 
 To run all tests use `sh all_tests.sh`

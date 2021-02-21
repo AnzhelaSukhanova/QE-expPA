@@ -6,18 +6,21 @@ LDFLAGS=-L $(BUILD)/lib -L $(DEPS)/minisat/build/release/lib -L $(DEPS)/lingelin
 
 all: main
 
-main: main.o simp_tools.o btor_tools.o
+main: main.o simp_tools.o btor_tools.o steps.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 	rm -f *.o
 
-main.o: src/btor_tools.h
+main.o:
 	$(CXX) -c src/main.c $(CPPFLAGS)
 	
-simp_tools.o: src/simp_tools.h
+simp_tools.o:
 	$(CXX) -c src/simp_tools.c
 	
-btor_tools.o: src/btor_tools.h src/simp_tools.h
+btor_tools.o:
 	$(CXX) -c src/btor_tools.c $(CPPFLAGS)
+	
+steps.o:
+	$(CXX) -c src/steps.c $(CPPFLAGS)
 
 clean:
 	rm -f main *.o
