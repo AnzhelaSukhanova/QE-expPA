@@ -52,9 +52,12 @@ is_linearly (Btor *btor, BtorNode **ulte_exp, int *ult_count, BtorBitVector **LC
                                   btor_node_is_bv_const(exp->e[0]) && btor_node_is_bv_var(exp->e[1]) ||
                                   btor_node_is_bv_var(exp->e[0]) && btor_node_is_bv_const(exp->e[1]);
                     const_exp = btor_node_copy(btor, btor_node_is_bv_const(exp->e[0]) ? exp->e[0] : exp->e[1]);
-                    coef = btor_node_is_inverted(const_exp) ? btor_node_bv_const_get_invbits(const_exp)
-                                                            : btor_node_bv_const_get_bits(const_exp);
-                    *LCM = uint_LCM(btor->mm, *LCM, coef);
+                    if (exp->e[0] == exists_var || exp->e[1] == exists_var)
+                    {
+                        coef = btor_node_is_inverted(const_exp) ? btor_node_bv_const_get_invbits(const_exp)
+                                                                : btor_node_bv_const_get_bits(const_exp);
+                        *LCM = uint_LCM(btor->mm, *LCM, coef);
+                    }
                     break;
                 case 5:  //AND
                     is_linearly = btor_node_is_param(exp->e[0]) || btor_node_is_bv_and(exp->e[0]) ||
