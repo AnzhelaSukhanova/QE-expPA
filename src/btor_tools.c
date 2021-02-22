@@ -1,7 +1,7 @@
 #include "btor_tools.h"
 
 BtorBitVector *
-bv_GCF (BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2) //greatest common factor
+bv_GCF(BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2) //greatest common factor
 {
     int32_t compare = btor_bv_compare(bv1, bv2);
     if (compare == 0)
@@ -15,7 +15,7 @@ bv_GCF (BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2) //greatest commo
 }
 
 BtorBitVector *
-bv_LCM (BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2) //least common multiple
+bv_LCM(BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2) //least common multiple
 {
     BtorBitVector *GCF = bv_GCF(mm, bv1, bv2);
     if (btor_bv_is_umulo(mm, bv1, btor_bv_udiv(mm, bv2, GCF)))
@@ -25,7 +25,7 @@ bv_LCM (BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2) //least common m
 }
 
 BtorBitVector *
-uint_LCM (BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2) //least common multiple
+uint_LCM(BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2) //least common multiple
 {
     uint64_t n1 = btor_bv_to_uint64(bv1);
     uint64_t n2 = btor_bv_to_uint64(bv2);
@@ -40,7 +40,7 @@ uint_LCM (BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2) //least common
 }
 
 bool
-only_this_var (BtorNode *exp, BtorNode *parent, BtorNode *var)
+only_this_var(BtorNode *exp, BtorNode *parent, BtorNode *var)
 {
     if (exp->kind > 3) {
         if (!only_this_var(exp->e[0], exp, var) && !btor_node_is_bv_const(exp->e[0])) {
@@ -52,7 +52,7 @@ only_this_var (BtorNode *exp, BtorNode *parent, BtorNode *var)
 }
 
 bool
-without_this_var (BtorNode *exp, BtorNode *var)
+without_this_var(BtorNode *exp, BtorNode *var)
 {
     if (exp->kind > 3) {
         if (!without_this_var(exp->e[0], var))
@@ -63,7 +63,7 @@ without_this_var (BtorNode *exp, BtorNode *var)
 }
 
 void
-printf_exps_info (Btor *btor)
+printf_exps_info(Btor *btor)
 {
     BtorNode *exp;
     for (int i = 1; i < stack_size; i++) {

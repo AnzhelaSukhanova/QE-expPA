@@ -55,7 +55,7 @@ main(int argc, char *argv[]) {
     int ulte_num = (int) stack_size / 8 + 1; //approximately
     BtorNode *ulte_exp[ulte_num];
     int ult_count = 0;
-    if (is_linearly(btor, ulte_exp, &ult_count, &LCM))
+    if (exvar_occurs_linearly(btor, ulte_exp, &ult_count, &LCM))
     { //x occurs linearly in every inequation occurring in the formula
         int left_ult_count = 0, right_ult_count = 0; //q and p respectively
         bool only_exists_var_left[ult_count], only_exists_var_right[ult_count];
@@ -237,7 +237,7 @@ main(int argc, char *argv[]) {
             btor_node_release(btor, and_exps);
         btor_node_release(btor, res_exp);
     }
-    else if (with_exponential())
+    else if (exvar_occurs_exponentially())
     {
         //there is an inequation where x occurs in an exponential term
         //TODO

@@ -16,7 +16,7 @@ put_in_DNF()
 }
 
 bool
-is_linearly (Btor *btor, BtorNode **ulte_exp, int *ult_count, BtorBitVector **LCM)
+exvar_occurs_linearly(Btor *btor, BtorNode **ulte_exp, int *ult_count, BtorBitVector **LCM)
 {
     bool is_linearly = true;
     int eq_count = 0;
@@ -83,7 +83,7 @@ is_linearly (Btor *btor, BtorNode **ulte_exp, int *ult_count, BtorBitVector **LC
 }
 
 bool
-with_exponential()
+exvar_occurs_exponentially()
 {
     //TODO
     return false;

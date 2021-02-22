@@ -9,7 +9,7 @@ extern int bv_size;
 
 BtorNode **transform_to_required_form();
 void put_in_DNF();
-bool is_linearly(Btor *btor, BtorNode **ulte_exp, int *ult_count, BtorBitVector **LCM);
-bool with_exponential();
+bool exvar_occurs_linearly(Btor *btor, BtorNode **ulte_exp, int *ult_count, BtorBitVector **LCM);
+bool exvar_occurs_exponentially();
 
 #endif //COURSE_STEPS_H
