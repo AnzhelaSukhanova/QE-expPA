@@ -227,6 +227,8 @@ main(int argc, char *argv[]) {
         fprintf(fd_out, "\n");
         check_out(btor, res_exp, argv[1]);
 
+        for (i = 0; i < ult_count; i++)
+            btor_node_release(btor, ulte_exp[i]);
         for (i = 0; i < bound + 1; i++) {
             btor_node_release(btor, eq[i]);
             btor_node_release(btor, const_exps[i]);
@@ -234,7 +236,10 @@ main(int argc, char *argv[]) {
         btor_node_release(btor, ult);
         btor_node_release(btor, or_exp);
         if (ult_count > 1)
+        {
             btor_node_release(btor, and_exps);
+            btor_node_release(btor, res_exp);
+        }
     }
     else if (exvar_occurs_exponentially())
     {
