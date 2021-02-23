@@ -235,7 +235,6 @@ main(int argc, char *argv[]) {
         btor_node_release(btor, or_exp);
         if (ult_count > 1)
             btor_node_release(btor, and_exps);
-        btor_node_release(btor, res_exp);
     }
     else if (exvar_occurs_exponentially())
     {
