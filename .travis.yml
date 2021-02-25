@@ -1,10 +1,16 @@
-language: c
+language: 
+   - c
+   - python
+python:
+  - "3.8"
 install:
   - git clone https://github.com/boolector/boolector
   - cd boolector
+  - pip install Cython
   - ./contrib/setup-lingeling.sh
   - ./contrib/setup-btor2tools.sh
-  - ./configure.sh && cd build && make
+  - ./configure.sh --python && cd build && make
+  - pip install pyboolector
   - cd ../../
 script:
   - make
