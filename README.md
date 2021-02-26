@@ -10,7 +10,7 @@ Use `make`, to build the project.
 `./main tests/<test_file> <out_file>`
 
 ## Tests
-The implementation is currently working for formulas like ∃ x: (⋀ n\_i * y\_i ≤ k\_i * x) ∧ (⋀ l\_j * x ≤ m\_j * y\_j), where y — variables, n, m, k, l— fixed size bit vectors.  
+The implementation is currently working for formulas like ∃ x: (⋀ n\_i * y\_i ≤ x) ∧ (⋀ x ≤ m\_j * y\_j), where y — variables, n, m — fixed size bit vectors.  
 
 The folder **tests** contains the following examples:  
 * 1.in — ∃ x: x ≤ y  
@@ -21,8 +21,8 @@ out: (not (and (not (= y #b0001)) (not (= y #b0000)) (not (bvult #b0001 y))))
 out: false  
 * 5.in — ∃ x: y\*3 ≤ x ∧ x ≤ y\*12  
 * 6.in — ∃ x: x ≤ y\*3 ∧ z ≤ x ∧ x ≤ t  
-* 7.in — ∃ x: x\*3 ≤ y ∧ y ≤ x\*6  
-* 8.in — ∃ x: x\*13 ≤ y ∧ y ≤ x\*14  
-* 9.in — ∃ x: x\*4 ≤ y\*5 ∧ y\*8 ≤ x\*10  
+* 7.in — ∃ x: x\*3 ≤ y ∧ y ≤ x\*6 (in progress)  
+* 8.in — ∃ x: x\*13 ≤ y ∧ y ≤ x\*14 (in progress)  
+* 9.in — ∃ x: x\*4 ≤ y\*5 ∧ y\*8 ≤ x\*10 (in progress)  
 
-To run all tests use `sh all_tests.sh`
+To run all tests and check output use `sh all_tests.sh`

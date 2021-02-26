@@ -4,11 +4,12 @@ python:
 install:
   - git clone https://github.com/boolector/boolector
   - cd boolector
-  - pip3 install Cython
+  - apt-get install python-dev
+  - pip install Cython
   - ./contrib/setup-lingeling.sh
   - ./contrib/setup-btor2tools.sh
   - ./configure.sh --python && cd build && make
-  - pip3 install pyboolector
+  - pip install pyboolector
   - cd ../../
 script:
   - make
