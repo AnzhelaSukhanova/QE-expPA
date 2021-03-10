@@ -24,13 +24,12 @@ exvar_occurs_linearly(Btor *btor, BtorNode **ulte_exp, int *ult_count, BtorBitVe
     BtorBitVector *coef = btor_bv_one(btor->mm, bv_size);
     for (int i = 1; i < stack_size; i++) {
         exp = BTOR_PEEK_STACK(btor->nodes_id_table, i);
-        if (!btor_node_is_bv_const(exp) && !btor_node_is_bv_var(exp) && !btor_node_is_param(exp))
-        {
+        if (!btor_node_is_bv_const(exp) && !btor_node_is_bv_var(exp) && !btor_node_is_param(exp)) {
             if (btor_node_is_bv_ult(exp)) {
                 is_linearly = btor_node_is_param(exp->e[0]) || btor_node_is_bv_var(exp->e[0]) ||
-                              btor_node_is_bv_mul(exp->e[0]) ||
+                              btor_node_is_bv_mul(exp->e[0]) || btor_node_is_bv_add(exp->e[0]) ||
                               btor_node_is_param(exp->e[1]) || btor_node_is_bv_var(exp->e[1]) ||
-                              btor_node_is_bv_mul(exp->e[1]);
+                              btor_node_is_bv_mul(exp->e[1]) || btor_node_is_bv_add(exp->e[1]);
                 is_linearly =
                         only_this_var(exp->e[0], exp, exists_var) && without_this_var(exp->e[1], exists_var) ||
                         only_this_var(exp->e[1], exp, exists_var) && without_this_var(exp->e[0], exists_var);
@@ -38,12 +37,17 @@ exvar_occurs_linearly(Btor *btor, BtorNode **ulte_exp, int *ult_count, BtorBitVe
                 (*ult_count)++;
             } else if (btor_node_is_bv_eq(exp)) {
                 is_linearly = btor_node_is_param(exp->e[0]) || btor_node_is_bv_var(exp->e[0]) ||
-                              btor_node_is_bv_mul(exp->e[0]) ||
+                              btor_node_is_bv_mul(exp->e[0]) || btor_node_is_bv_add(exp->e[0]) ||
                               btor_node_is_param(exp->e[1]) || btor_node_is_bv_var(exp->e[1]) ||
-                              btor_node_is_bv_mul(exp->e[1]);
+                              btor_node_is_bv_mul(exp->e[1]) || btor_node_is_bv_add(exp->e[1]);
                 is_linearly =
                         only_this_var(exp->e[0], exp, exists_var) && without_this_var(exp->e[1], exists_var) ||
                         only_this_var(exp->e[1], exp, exists_var) && without_this_var(exp->e[0], exists_var);
+            } else if (btor_node_is_bv_add(exp)) {
+                is_linearly = (btor_node_is_bv_const(exp->e[0]) || btor_node_is_bv_var(exp->e[0]) ||
+                              btor_node_is_bv_mul(exp->e[0])) && without_this_var(exp->e[0], exists_var) ||
+                              btor_node_is_bv_const(exp->e[1]) || btor_node_is_bv_var(exp->e[1]) ||
+                              btor_node_is_bv_mul(exp->e[1]) && without_this_var(exp->e[0], exists_var);
             } else if (btor_node_is_bv_mul(exp)) {
                 is_linearly = btor_node_is_bv_const(exp->e[0]) && btor_node_is_param(exp->e[1]) ||
                               btor_node_is_param(exp->e[0]) && btor_node_is_bv_const(exp->e[1]) ||
