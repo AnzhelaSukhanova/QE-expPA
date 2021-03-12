@@ -4,7 +4,14 @@ python:
 install:
   - git clone https://github.com/boolector/boolector
   - cd boolector
-  - sudo apt-get install python3-dev python3-pip python3-tk python3-lxml python3-six
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+  - bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
+  - source "$HOME/miniconda/etc/profile.d/conda.sh"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda create -q -n QE
+  - conda activate QE
   - pip install Cython
   - ./contrib/setup-lingeling.sh
   - ./contrib/setup-btor2tools.sh
