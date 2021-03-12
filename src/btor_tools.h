@@ -12,9 +12,6 @@ extern "C" {
 extern size_t stack_size;
 extern BtorNode *exists_var;
 
-BtorBitVector *bv_GCF(BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2); //greatest common factor
-BtorBitVector *bv_LCM(BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2); //least common multiple
-BtorBitVector *uint_LCM(BtorMemMgr *mm, BtorBitVector *bv1, BtorBitVector *bv2);
 bool only_this_var(BtorNode *exp, BtorNode *parent, BtorNode *var);
 bool without_this_var(BtorNode *exp, BtorNode *var);
 void printf_exps_info(Btor *btor);

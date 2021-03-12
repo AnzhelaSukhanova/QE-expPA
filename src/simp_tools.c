@@ -25,18 +25,3 @@ next_permutation(int *perm, int size)
         swap(perm, l++, r--);
     return true;
 }
-
-uint64_t
-GCF(uint64_t n1, uint64_t n2)
-{
-    int div;
-    if (n1 == n2)
-        return n1;
-    int dif = n1 - n2;
-    if (dif < 0) {
-        dif = -dif;
-        div = GCF(n1, dif);
-    } else
-        div = GCF(n2, dif);
-    return div;
-}

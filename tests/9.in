@@ -1,7 +1,0 @@
-(set-option :produce-models true)
-(set-logic BV)
-(declare-fun y () (_ BitVec 4))
-(assert
- (exists ((x (_ BitVec 4))) (and 
- (or (bvult (bvmul x #b0100) (bvmul y #b0101)) (= (bvmul x #b0100) (bvmul y #b0101))) 
- (or (bvult (bvmul y #b1000) (bvmul x #b1010)) (= (bvmul y #b1000) (bvmul x #b1010))))))
