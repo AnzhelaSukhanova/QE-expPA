@@ -3,20 +3,12 @@ python:
   - "3.8"
 install:
   - git clone https://github.com/boolector/boolector
-  - cd boolector
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-  - bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
-  - source "$HOME/miniconda/etc/profile.d/conda.sh"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  - conda create -q -n QE
-  - conda activate QE
-  - pip install Cython
+  - cd boolector 
+  - pip3 install Cython
   - ./contrib/setup-lingeling.sh
   - ./contrib/setup-btor2tools.sh
   - ./configure.sh --python && cd build && make
-  - pip install pyboolector
+  - pip3 install pyboolector
   - cd ../../
 script:
   - make
