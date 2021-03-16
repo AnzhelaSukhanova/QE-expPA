@@ -10,7 +10,7 @@ Use `make`, to build the project.
 `./main tests/<test_file> <out_file>`
 
 ## Tests
-The implementation is currently working for formulas like ∃ x: (⋀ s\_i(ȳ) ≤ x) ∧ (⋀ x ≤ s\_j(ȳ)), where ȳ — variables, s\_i(ȳ)~--- linear combination of variables and constant fixed size bit vectors.  
+The implementation is currently working for formulas like **∃ x: (⋀ s\_i (ȳ) ≤ x) ∧ (⋀ x ≤ s\_j (ȳ))**, where ȳ — variables, s\_i(ȳ) — linear combination of variables and constant fixed size bit vectors.  
 
 The folder **tests** contains the following examples:  
 * 1.smt2 — ∃ x: x ≤ y  
