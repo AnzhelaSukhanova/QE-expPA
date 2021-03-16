@@ -4,7 +4,6 @@ python:
 install:
   - git clone https://github.com/boolector/boolector
   - cd boolector
-  - sudo apt-get install cmake
   - pip3 install Cython
   - ./contrib/setup-lingeling.sh
   - ./contrib/setup-btor2tools.sh

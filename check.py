@@ -9,7 +9,7 @@ if __name__ == '__main__':
             f_out.write(line)
         else:
             f_out.write('(assert (xor (\n')
-    f_in = open(sys.argv[1][:-3] + '.out', 'r')
+    f_in = open(sys.argv[1][:-5] + '.out', 'r')
     for line in f_in:
         f_out.write(line)
     f_out.write('))')

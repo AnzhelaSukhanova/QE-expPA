@@ -12,8 +12,9 @@ extern "C" {
 extern size_t stack_size;
 extern BtorNode *exists_var;
 
-bool only_this_var(BtorNode *exp, BtorNode *parent, BtorNode *var);
-bool without_this_var(BtorNode *exp, BtorNode *var);
+bool only_this_var(Btor *btor, BtorNode *exp, BtorNode *parent, BtorNode *var);
+bool without_this_var(Btor *btor, BtorNode *exp, BtorNode *var);
+bool without_vars(Btor *btor, BtorNode *exp);
 void printf_exps_info(Btor *btor);
 BtorNode *get_exists_var(Btor *btor);
 

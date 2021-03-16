@@ -42,8 +42,8 @@ main(int argc, char *argv[]) {
         int i;
         for (i = 0; i < ult_count; i++) {
             exp = ulte_exp[i];
-            only_exvar_left[i] = only_this_var(exp->e[0], exp, exists_var);
-            only_exvar_right[i] = only_this_var(exp->e[1], exp, exists_var);
+            only_exvar_left[i] = only_this_var(btor, exp->e[0], exp, exists_var);
+            only_exvar_right[i] = only_this_var(btor, exp->e[1], exp, exists_var);
             if (only_exvar_left[i])
                 right_ult_count++;
             else
@@ -125,16 +125,18 @@ main(int argc, char *argv[]) {
                     j++;
                 } while (next_permutation(right_perm, right_ult_count));
             } else
-                printf("The input formula is incorrect");
+                BTOR_ABORT(true, "The input formula is incorrect");
         }
         else
             res_exp = btor_exp_true(btor);
         btor_dumpsmt_dump_node(btor, fd_out, res_exp, -1);
 
-        for (i = 0; i < ult_count; i++)
-            btor_node_release(btor, ulte_exp[i]);
         if (ult_count > 1)
+        {
+            for (i = 0; i < ult_count; i++)
+                btor_node_release(btor, ulte_exp[i]);
             btor_node_release(btor, and_exp);
+        }
         btor_node_release(btor, res_exp);
     }
     else if (exvar_occurs_exponentially())

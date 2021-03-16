@@ -10,16 +10,21 @@ Use `make`, to build the project.
 `./main tests/<test_file> <out_file>`
 
 ## Tests
-The implementation is currently working for formulas like ∃ x: (⋀ n\_i * y\_i ≤ x) ∧ (⋀ x ≤ m\_j * y\_j), where y — variables, n, m — fixed size bit vectors.  
+The implementation is currently working for formulas like ∃ x: (⋀ s\_i(ȳ) ≤ x) ∧ (⋀ x ≤ s\_j(ȳ)), where ȳ — variables, s\_i(ȳ)~--- linear combination of variables and constant fixed size bit vectors.  
 
 The folder **tests** contains the following examples:  
-* 1.in — ∃ x: x ≤ y  
+* 1.smt2 — ∃ x: x ≤ y  
 out: (not (and (not (= y #b0001)) (not (= y #b0000)) (not (bvult #b0001 y))))  
-* 2.in — ∃ x: y\*3 ≤ x ∧ x ≤ y\*7  
-* 3.in — ∃ x: y ≤ x ∧ 2 ≤ x ∧ z ≤ x   
-* 4.in — ∃ x: x ≤ 2 ∧ 3 ≤ x  
+* 2.smt2 — ∃ x: y\*3 ≤ x ∧ x ≤ y\*7  
+* 3.smt2 — ∃ x: y ≤ x ∧ 2 ≤ x ∧ z ≤ x   
+* 4.smt2 — ∃ x: x ≤ 2 ∧ 3 ≤ x  
 out: false  
-* 5.in — ∃ x: y\*3 ≤ x ∧ x ≤ y\*12  
-* 6.in — ∃ x: x ≤ y\*3 ∧ z ≤ x ∧ x ≤ t  
+* 5.smt2 — ∃ x: y\*3 ≤ x ∧ x ≤ y\*12  
+* 6.smt2 — ∃ x: x ≤ y\*3 ∧ z ≤ x ∧ x ≤ t  
+* 7.smt2 — ∃ x: x ≤ y + z  
+* 8.smt2 — ∃ x: x ≤ y\*5 + 8  
+* 9.smt2 — ∃ x: x ≤ y\*2 + z ∧ y\*10 ≤ x  
+* 10.smt2 — ∃ x: x ≤ y\*5 + 7 ∧ (y + z)\*8 ≤ x  
+* 11.smt2 — ∃ x: x ≤ y + ((9 + 2) + z)  
 
 To run all tests and check output use `sh all_tests.sh`
