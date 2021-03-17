@@ -32,8 +32,8 @@ exvar_occurs_linearly(Btor *btor, BtorNode **ulte_exp, int *ult_count)
                               btor_node_is_param(exp->e[1]) || btor_node_is_bv_var(exp->e[1]) ||
                               btor_node_is_bv_mul(exp->e[1]) || btor_node_is_bv_add(exp->e[1]);
                 is_linearly =
-                        only_this_var(btor, exp->e[0], exp, exists_var) && without_this_var(btor, exp->e[1], exists_var) ||
-                        only_this_var(btor, exp->e[1], exp, exists_var) && without_this_var(btor, exp->e[0], exists_var);
+                        exp->e[0] == exists_var && without_this_var(btor, exp->e[1], exists_var) ||
+                        exp->e[1] == exists_var && without_this_var(btor, exp->e[0], exists_var);
                 ulte_exp[*ult_count] = btor_node_copy(btor, exp); //to multiply up to LCM a little bit later
                 (*ult_count)++;
             }
@@ -44,8 +44,8 @@ exvar_occurs_linearly(Btor *btor, BtorNode **ulte_exp, int *ult_count)
                               btor_node_is_param(exp->e[1]) || btor_node_is_bv_var(exp->e[1]) ||
                               btor_node_is_bv_mul(exp->e[1]) || btor_node_is_bv_add(exp->e[1]);
                 is_linearly =
-                        only_this_var(btor, exp->e[0], exp, exists_var) && without_this_var(btor, exp->e[1], exists_var) ||
-                        only_this_var(btor, exp->e[1], exp, exists_var) && without_this_var(btor, exp->e[0], exists_var);
+                        exp->e[0] == exists_var && without_this_var(btor, exp->e[1], exists_var) ||
+                        exp->e[1] == exists_var && without_this_var(btor, exp->e[0], exists_var);
             }
             else if (btor_node_is_bv_add(exp)) //8
                 is_linearly = without_this_var(btor, exp->e[0], exists_var) && without_this_var(btor, exp->e[1], exists_var);

@@ -1,18 +1,18 @@
 #include "btor_tools.h"
 
 bool
-only_this_var(Btor *btor, BtorNode *exp, BtorNode *parent, BtorNode *var)
+only_this_var(Btor *btor, BtorNode *exp, BtorNode *var)
 {
     if (!btor_node_is_bv_const(exp) && !btor_node_is_bv_var(exp) && !btor_node_is_param(exp))
     {
-        uint32_t id = btor_node_get_id(exp->e[0]);
+        uint32_t id = abs(btor_node_get_id(exp->e[0]));
         BtorNode *child_exp = BTOR_PEEK_STACK(btor->nodes_id_table, id);
-        if (!only_this_var(btor, child_exp, exp, var) && !btor_node_is_bv_const(child_exp)) {
+        if (!only_this_var(btor, child_exp, var) && !btor_node_is_bv_const(child_exp)) {
             return false;
         }
-        id = btor_node_get_id(exp->e[1]);
+        id = abs(btor_node_get_id(exp->e[1]));
         child_exp = BTOR_PEEK_STACK(btor->nodes_id_table, id);
-        return (only_this_var(btor, child_exp, exp, var) || btor_node_is_bv_const(child_exp));
+        return (only_this_var(btor, child_exp, var) || btor_node_is_bv_const(child_exp));
     }
     else
         return (exp == var);
@@ -23,14 +23,15 @@ without_this_var(Btor *btor, BtorNode *exp, BtorNode *var)
 {
     if (!btor_node_is_bv_const(exp) && !btor_node_is_bv_var(exp) && !btor_node_is_param(exp))
     {
-        uint32_t id = btor_node_get_id(exp->e[0]);
+        uint32_t id = abs(btor_node_get_id(exp->e[0]));
         BtorNode *child_exp = BTOR_PEEK_STACK(btor->nodes_id_table, id);
         if (!without_this_var(btor, exp->e[0], var))
             return false;
-        /*id = btor_node_get_id(exp->e[1]); ??
-        child_exp = BTOR_PEEK_STACK(btor->nodes_id_table, id); ??*/
-        return without_this_var(btor, exp->e[1], var);
-    } else
+        id = abs(btor_node_get_id(exp->e[1]));
+        child_exp = BTOR_PEEK_STACK(btor->nodes_id_table, id);
+        return without_this_var(btor, child_exp, var);
+    }
+    else
         return (exp != var);
 }
 
@@ -41,11 +42,11 @@ without_vars(Btor *btor, BtorNode *exp)
         return true;
     else if (!btor_node_is_bv_var(exp) && !btor_node_is_param(exp))
     {
-        uint32_t id = btor_node_get_id(exp->e[0]);
+        uint32_t id = abs(btor_node_get_id(exp->e[0]));
         BtorNode *child_exp = BTOR_PEEK_STACK(btor->nodes_id_table, id);
         if (!without_vars(btor, child_exp))
             return false;
-        id = btor_node_get_id(exp->e[1]);
+        id = abs(btor_node_get_id(exp->e[1]));
         child_exp = BTOR_PEEK_STACK(btor->nodes_id_table, id);
         return without_vars(btor, child_exp);
     }

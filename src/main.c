@@ -42,8 +42,8 @@ main(int argc, char *argv[]) {
         int i;
         for (i = 0; i < ult_count; i++) {
             exp = ulte_exp[i];
-            only_exvar_left[i] = only_this_var(btor, exp->e[0], exp, exists_var);
-            only_exvar_right[i] = only_this_var(btor, exp->e[1], exp, exists_var);
+            only_exvar_left[i] = exp->e[0] == exists_var;
+            only_exvar_right[i] = exp->e[1] == exists_var;
             if (only_exvar_left[i])
                 right_ult_count++;
             else
