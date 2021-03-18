@@ -9,7 +9,6 @@ extern int bv_size;
 
 BtorNode **transform_to_required_form();
 void put_in_DNF();
-bool exvar_occurs_linearly(Btor *btor, BtorNode **ulte_exp, int *ult_count);
-bool exvar_occurs_exponentially();
+int exvar_occurs_kind(Btor *btor, BtorNode **ulte_exp, int *ult_count);
 
 #endif //COURSE_STEPS_H

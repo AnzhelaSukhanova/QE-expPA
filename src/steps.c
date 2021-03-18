@@ -15,72 +15,46 @@ put_in_DNF()
     //TODO
 }
 
-bool
-exvar_occurs_linearly(Btor *btor, BtorNode **ulte_exp, int *ult_count)
+int
+exvar_occurs_kind(Btor *btor, BtorNode **ulte_exp, int *ult_count)
 {
-    bool is_linearly = true;
+    int kind = 1;
     int eq_count = 0;
     BtorNode *exp;
     for (int i = 1; i < stack_size; i++) {
         exp = BTOR_PEEK_STACK(btor->nodes_id_table, i);
-        if (exp && !btor_node_is_bv_const(exp) && !btor_node_is_bv_var(exp) && !btor_node_is_param(exp))
-        {
+        if (exp && !btor_node_is_bv_const(exp) && !btor_node_is_bv_var(exp) && !btor_node_is_param(exp)) {
             if (btor_node_is_bv_ult(exp)) //10
             {
-                is_linearly = btor_node_is_param(exp->e[0]) || btor_node_is_bv_var(exp->e[0]) ||
-                              btor_node_is_bv_mul(exp->e[0]) || btor_node_is_bv_add(exp->e[0]) ||
-                              btor_node_is_param(exp->e[1]) || btor_node_is_bv_var(exp->e[1]) ||
-                              btor_node_is_bv_mul(exp->e[1]) || btor_node_is_bv_add(exp->e[1]);
-                is_linearly =
-                        exp->e[0] == exists_var && without_this_var(btor, exp->e[1], exists_var) ||
-                        exp->e[1] == exists_var && without_this_var(btor, exp->e[0], exists_var);
+                kind = (exp->e[0] == exists_var && without_this_var(btor, exp->e[1], exists_var) ||
+                       exp->e[1] == exists_var && without_this_var(btor, exp->e[0], exists_var)) ? 1 : 0;
                 ulte_exp[*ult_count] = btor_node_copy(btor, exp); //to multiply up to LCM a little bit later
                 (*ult_count)++;
             }
             else if (btor_node_is_bv_eq(exp)) //6
-            {
-                is_linearly = btor_node_is_param(exp->e[0]) || btor_node_is_bv_var(exp->e[0]) ||
-                              btor_node_is_bv_mul(exp->e[0]) || btor_node_is_bv_add(exp->e[0]) ||
-                              btor_node_is_param(exp->e[1]) || btor_node_is_bv_var(exp->e[1]) ||
-                              btor_node_is_bv_mul(exp->e[1]) || btor_node_is_bv_add(exp->e[1]);
-                is_linearly =
-                        exp->e[0] == exists_var && without_this_var(btor, exp->e[1], exists_var) ||
-                        exp->e[1] == exists_var && without_this_var(btor, exp->e[0], exists_var);
-            }
+                kind = exp->e[0] == exists_var && without_this_var(btor, exp->e[1], exists_var) ||
+                        exp->e[1] == exists_var && without_this_var(btor, exp->e[0], exists_var) ? 1 : 0;
             else if (btor_node_is_bv_add(exp)) //8
-                is_linearly = without_this_var(btor, exp->e[0], exists_var) && without_this_var(btor, exp->e[1], exists_var);
+                kind = without_this_var(btor, exp->e[0], exists_var) && without_this_var(btor, exp->e[1], exists_var) ? kind : 0;
             else if (btor_node_is_bv_mul(exp)) //9
-                is_linearly = without_vars(btor, exp->e[0]) && without_this_var(btor, exp->e[1], exists_var) ||
-                              without_this_var(btor, exp->e[0], exists_var) && without_vars(btor, exp->e[1]);
-            /*else if (btor_node_is_bv_udiv(exp)) //13
-                is_linearly = without_this_var(btor, exp->e[0], exists_var) && without_this_var(btor, exp->e[1], exists_var) &&
-                              without_vars(btor, exp->e[1]);*/
+                kind = without_vars(btor, exp->e[0]) && without_this_var(btor, exp->e[1], exists_var) ||
+                       without_this_var(btor, exp->e[0], exists_var) && without_vars(btor, exp->e[1]) ? kind : 0;
+            else if (btor_node_is_bv_sll(exp)) //11
+                kind = only_this_var(btor, exp->e[0], exists_var) && without_this_var(btor, exp->e[1], exists_var) ||
+                       only_this_var(btor, exp->e[1], exists_var) && without_this_var(btor, exp->e[0], exists_var) ? 2 : 0;
             else if (btor_node_is_bv_and(exp)) //5
-            {
-                is_linearly = btor_node_is_param(exp->e[0]) || btor_node_is_bv_and(exp->e[0]) ||
-                              btor_node_is_bv_ult(exp->e[0]) ||
-                              btor_node_is_param(exp->e[1]) || btor_node_is_bv_and(exp->e[1]) ||
-                              btor_node_is_bv_ult(exp->e[1]);
-            }
+                kind = btor_node_is_param(exp->e[0]) || btor_node_is_bv_and(exp->e[0]) ||
+                       btor_node_is_bv_ult(exp->e[0]) ||
+                       btor_node_is_param(exp->e[1]) || btor_node_is_bv_and(exp->e[1]) ||
+                       btor_node_is_bv_ult(exp->e[1]) ? kind : 0;
             else if (btor_node_is_exists(exp)) //18
-            {
-                is_linearly = btor_node_is_param(exp->e[0]) || btor_node_is_bv_and(exp->e[0]) ||
-                              btor_node_is_exists(exp->e[0]) ||
-                              btor_node_is_param(exp->e[1]) || btor_node_is_bv_and(exp->e[1]) ||
-                              btor_node_is_exists(exp->e[1]);
-            }
+                kind = btor_node_is_param(exp->e[0]) && (btor_node_is_param(exp->e[1]) ||
+                        btor_node_is_bv_and(exp->e[1]) || btor_node_is_exists(exp->e[1])) ? kind : 0;
             else
-                return false;
+                return 0;
+            if (kind == 0)
+                return 0;
         }
-        if (!is_linearly)
-            return false;
     }
-    return is_linearly;
-}
-
-bool
-exvar_occurs_exponentially()
-{
-    //TODO
-    return false;
+    return kind;
 }
