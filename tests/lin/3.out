@@ -1,0 +1,1 @@
+(let (($e1 (bvult #b0010 z))) (let (($e2 (bvult y #b0010))) (let (($e3 (bvult z #b0010))) (let (($e4 (bvult y z))) (let (($e5 (bvult #b0010 y))) (let (($e6 (bvult z y))) (not (and (not (and (not $e4) (not $e3))) (not (and (not $e2) (not $e1))) (not (and (not $e5) (not $e4))) (not (and (not $e6) (not $e1))) (not (and (not $e6) (not $e2))) (not (and (not $e5) (not $e3)))))))))))

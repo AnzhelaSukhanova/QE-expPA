@@ -60,8 +60,9 @@ printf_exps_info(Btor *btor)
     BtorNode *exp;
     for (int i = 1; i < stack_size; i++) {
         exp = btor_node_copy(btor, BTOR_PEEK_STACK(btor->nodes_id_table, i));
+        assert(exp);
         printf("id: %d kind: %d\n", btor_node_get_id(exp), exp->kind);
-        if (exp->kind > 3) {
+        if (exp->kind > 4) {
             printf("kinds of children: %d %d\n\n", exp->e[0]->kind, exp->e[1]->kind);
         } else
             printf("\n");

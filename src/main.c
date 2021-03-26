@@ -3,7 +3,6 @@
 
 extern "C" {
 #include "boolector.h"
-#include "btorabort.h"
 #include "btorbv.h"
 #include "dumper/btordumpsmt.h"
 };
@@ -35,114 +34,27 @@ main(int argc, char *argv[]) {
     int ulte_num = (int) stack_size / 8 + 1; //approximately
     BtorNode *ulte_exp[ulte_num];
     int ult_count = 0;
-    if (exvar_occurs_kind(btor, ulte_exp, &ult_count) == 1) { //x occurs linearly in every inequation occurring in the formula
-        int left_ult_count = 0, right_ult_count = 0; //q and p respectively
-        bool only_exvar_left[ult_count], only_exvar_right[ult_count];
-        BtorNode *exp;
-        int i;
-        for (i = 0; i < ult_count; i++) {
-            exp = ulte_exp[i];
-            only_exvar_left[i] = exp->e[0] == exists_var;
-            only_exvar_right[i] = exp->e[1] == exists_var;
-            if (only_exvar_left[i])
-                right_ult_count++;
-            else
-                left_ult_count++;
+    int formula_kind = exvar_occurs_kind(btor, ulte_exp, &ult_count);
+    if (formula_kind != 0)
+    {
+        if (formula_kind == 2) {
+            //there is an inequation where x occurs in an exponential term
         }
+
+        //x occurs linearly in every inequation occurring in the formula
         if (new_vars[0] != NULL) { //replace x_i by r + k_i + d.φ(d_0).x'_i or by z with 0 <= z < r
             //TODO
         }
         //consider a S-term
         //TODO
 
-        int left_perm[left_ult_count]; //σ ∈ S_q
-        int right_perm[right_ult_count]; //ρ ∈ S_p
-        int k = 0, j = 0;
-        for (i = 0; i < ult_count; i++) {
-            if (only_exvar_left[i]) {
-                right_perm[j] = i;
-                j++;
-            } else {
-                left_perm[k] = i;
-                k++;
-            }
-        }
-
-        int index[2];
-        BtorNode *and_exp, *exp1, *res_exp, *or_exp;
-        i = 1, j = 1;
-        if (ult_count > 1) {
-            if (left_ult_count != 0 && right_ult_count != 0) {
-                BtorNode *ulte[ult_count - 1];
-                BtorNode *dif;
-                do {
-                    do {
-                        exp = ulte_exp[left_perm[0]]->e[0];
-                        exp1 = ulte_exp[right_perm[0]]->e[1];
-                        ulte[0] = btor_exp_bv_ulte(btor, exp, exp1);
-                        for (k = 1; k < right_ult_count; k++) {
-                            index[0] = right_perm[k - 1];
-                            index[1] = right_perm[k];
-                            ulte[k] = btor_exp_bv_ulte(btor, ulte_exp[index[0]]->e[1], ulte_exp[index[1]]->e[1]);
-                        }
-                        for (k = left_ult_count - 1; k > 0; k--) {
-                            index[0] = left_perm[k];
-                            index[1] = left_perm[k - 1];
-                            ulte[ult_count - k - 1] = btor_exp_bv_ulte(btor, ulte_exp[index[0]]->e[0],
-                                                                       ulte_exp[index[1]]->e[0]);
-                        }
-                        and_exp = ult_count == 2 ? ulte[0] : btor_exp_bv_and_n(btor, ulte, ult_count - 1);
-                        res_exp = i + j == 2 ? and_exp : btor_exp_bv_or(btor, res_exp, and_exp);
-                        j++;
-                    } while (next_permutation(right_perm, right_ult_count));
-                    i++;
-                } while (next_permutation(left_perm, left_ult_count));
-            } else if (left_ult_count != 0) {
-                BtorNode *ulte[ult_count];
-                do {
-                    exp = ulte_exp[left_perm[0]]->e[0];
-                    for (k = left_ult_count - 1; k > 0; k--) {
-                        index[0] = left_perm[k];
-                        index[1] = left_perm[k - 1];
-                        ulte[ult_count - k - 1] = btor_exp_bv_ulte(btor, ulte_exp[index[0]]->e[0],
-                                                                   ulte_exp[index[1]]->e[0]);
-                    }
-                    and_exp = ult_count == 2 ? ulte[0] : btor_exp_bv_and_n(btor, ulte, ult_count - 1);
-                    res_exp = i == 1 ? and_exp : btor_exp_bv_or(btor, res_exp, and_exp);
-                    i++;
-                } while (next_permutation(left_perm, left_ult_count));
-            } else if (right_ult_count != 0) {
-                BtorNode *ulte[ult_count];
-                do {
-                    exp = ulte_exp[right_perm[0]]->e[1];
-                    for (k = 1; k < right_ult_count; k++) {
-                        index[0] = right_perm[k - 1];
-                        index[1] = right_perm[k];
-                        ulte[k - 1] = btor_exp_bv_ulte(btor, ulte_exp[index[0]]->e[1], ulte_exp[index[1]]->e[1]);
-                    }
-                    and_exp = ult_count == 2 ? ulte[0] : btor_exp_bv_and_n(btor, ulte, ult_count - 1);
-                    res_exp = j == 1 ? and_exp : btor_exp_bv_or(btor, res_exp, and_exp);
-                    j++;
-                } while (next_permutation(right_perm, right_ult_count));
-            } else
-                BTOR_ABORT(true, "The input formula is incorrect");
-        }
-        else
-            res_exp = btor_exp_true(btor);
+        BtorNode *res_exp = qe_linear_case(btor, ult_count, ulte_exp);
         btor_dumpsmt_dump_node(btor, fd_out, res_exp, -1);
 
         if (ult_count > 1)
-        {
-            for (i = 0; i < ult_count; i++)
+            for (int i = 0; i < ult_count; i++)
                 btor_node_release(btor, ulte_exp[i]);
-            btor_node_release(btor, and_exp);
-        }
         btor_node_release(btor, res_exp);
-    }
-    else if (exvar_occurs_kind(btor, ulte_exp, &ult_count) == 2)
-    {
-        //there is an inequation where x occurs in an exponential term
-        //TODO
     }
     else
         BTOR_ABORT(true, "The formula did not transformed to the required form");
