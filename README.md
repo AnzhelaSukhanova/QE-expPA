@@ -16,16 +16,16 @@ The implementation is currently working for formulas like <img src="https://rend
 
 **tests/lin** contains the following examples:  
 * 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y">  
-* 2.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:y*3\leq x\wedge x\leq y*7">  
+* 2.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:y\cdot 3\leq x\wedge x\leq y\cdot 7">  
 * 3.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:y\leq x\wedge 2\leq x\wedge z\leq x">   
 * 4.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq 2\wedge 3\leq x">  
-* 5.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:y*3\leq x\wedge x\leq y*12">  
-* 6.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y*3\wedge z\leq x\wedge x\leq t">  
-* 7.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y + z">  
-* 8.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y*5 + 8">  
-* 9.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y*2 + z\wedge y*10\leq x">  
-* 10.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y*5 + 7\wedge (y + z)*8\leq x">  
-* 11.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y + ((9 + 2) + z)">  
+* 5.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:y\cdot 3\leq x\wedge x\leq y\cdot 12">  
+* 6.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y\cdot 3\wedge z\leq x\wedge x\leq t">  
+* 7.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y+z">  
+* 8.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y\cdot 5+8">  
+* 9.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y\cdot 2+z\wedge y\cdot 10\leq x">  
+* 10.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y\cdot 5+7\wedge (y+z)\cdot 8\leq x">  
+* 11.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y+((9+2)+z)">  
 
 **tests/exp** contains the following examples:  
 * 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x^2\leq y"> (in progress)  
