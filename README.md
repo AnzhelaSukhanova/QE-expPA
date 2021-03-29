@@ -15,12 +15,10 @@ The folder **tests** contains two subfolders: **lin** and **exp**. The first con
 The implementation is currently working for formulas like **∃ x: (⋀ s\_i (ȳ) ≤ x) ∧ (⋀ x ≤ s\_j (ȳ))**, where ȳ — variables, s\_i(ȳ) — linear combination of variables and constant fixed size bit vectors.  
 
 **tests/lin** contains the following examples:  
-* 1.smt2 — ∃ x: x ≤ y  
-out: (not (and (not (= y #b0001)) (not (= y #b0000)) (not (bvult #b0001 y))))  
+* 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y">  
 * 2.smt2 — ∃ x: y\*3 ≤ x ∧ x ≤ y\*7  
 * 3.smt2 — ∃ x: y ≤ x ∧ 2 ≤ x ∧ z ≤ x   
 * 4.smt2 — ∃ x: x ≤ 2 ∧ 3 ≤ x  
-out: false  
 * 5.smt2 — ∃ x: y\*3 ≤ x ∧ x ≤ y\*12  
 * 6.smt2 — ∃ x: x ≤ y\*3 ∧ z ≤ x ∧ x ≤ t  
 * 7.smt2 — ∃ x: x ≤ y + z  
@@ -33,3 +31,6 @@ out: false
 * 1.smt2 — ∃ x: 2^x ≤ y (in progress)  
 
 To run all tests and check the output use `sh all_tests.sh`
+
+## About
+More details about the project can be found in **pres/report.pdf**.
