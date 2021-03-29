@@ -12,7 +12,7 @@ If you want check the result use `python check.py tests/<test_file> <out_file>`
 
 ## Tests
 The folder **tests** contains two subfolders: **lin** and **exp**. The first contains tests with a linear occurrence of the bound variable, and the second contains those tests in which the bound variable occurs in an exponential term.  
-The implementation is currently working for formulas like <img src="https://render.githubusercontent.com/render/math?math=\exists x:$\bigwedge\limits_{1\leq i\leq p, 1\leq j\leq q} g_j(\overline{y})\leq x\wedge x\leq g_i(\overline{y})$">, where <img src="https://render.githubusercontent.com/render/math?math=$\overline{y}$"> — free variables, <img src="https://render.githubusercontent.com/render/math?math=$g_i(\overline{y}), g_j(\overline{y})$"> — linear combination of variables and constant fixed size bit vectors.  
+The implementation is currently working for formulas like <img src="https://render.githubusercontent.com/render/math?math=\exists x:$\bigwedge g_j(\overline{y})\leq x\wedge x\leq g_i(\overline{y})$">, where <img src="https://render.githubusercontent.com/render/math?math=$\overline{y}$"> — free variables, <img src="https://render.githubusercontent.com/render/math?math=$g_i(\overline{y}), g_j(\overline{y})$"> — linear combination of variables and constant fixed size bit vectors.  
 
 **tests/lin** contains the following examples:  
 * 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y">  
@@ -21,11 +21,11 @@ The implementation is currently working for formulas like <img src="https://rend
 * 4.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq 2\wedge 3\leq x">  
 * 5.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:y\cdot 3\leq x\wedge x\leq y\cdot 12">  
 * 6.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y\cdot 3\wedge z\leq x\wedge x\leq t">  
-* 7.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y+z">  
-* 8.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y\cdot 5+8">  
-* 9.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y\cdot 2+z\wedge y\cdot 10\leq x">  
-* 10.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y\cdot 5+7\wedge (y+z)\cdot 8\leq x">  
-* 11.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y+((9+2)+z)">  
+* 7.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y %2B z">  
+* 8.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y\cdot 5 %2B 8">  
+* 9.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y\cdot 2 %2B z\wedge y\cdot 10\leq x">  
+* 10.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y\cdot 5 %2B 7\wedge (y %2B z)\cdot 8\leq x">  
+* 11.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y %2B ((9 %2B 2) %2B z)">  
 
 **tests/exp** contains the following examples:  
 * 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x^2\leq y"> (in progress)  
