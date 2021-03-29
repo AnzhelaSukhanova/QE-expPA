@@ -3,15 +3,18 @@
 cd tests
 IN='*.smt2'
 
-for i in lin/$IN
+for in in lin/$IN
     do
-        ../main $i lin/"`basename $i .smt2`.out"
-        python ../check.py $i
+        out=lin/"`basename $in .smt2`.out"
+        ../main $in $out
+        python ../check.py $in $out
     done
 
-for i in exp/$IN
+for in in exp/$IN
     do
-        ../main $i exp/"`basename $i .smt2`.out"
-        python ../check.py $i
+        out=exp/"`basename $in .smt2`.out"
+        ../main $in $out
+        python ../check.py $in $out
     done
 cd ..
+
