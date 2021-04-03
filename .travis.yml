@@ -1,14 +1,18 @@
 language: python
 python:
   - "3.8"
-install:
+before_install:
   - git clone https://github.com/boolector/boolector
   - cd boolector
   - pip3 install Cython
   - ./contrib/setup-lingeling.sh
   - ./contrib/setup-btor2tools.sh
-  - ./configure.sh --python && cd build && make
+  - ./configure.sh --python
+  - cd build
+  - make
+install:
   - pip3 install pyboolector
+before_script:
   - cd ../../
 script:
   - make
