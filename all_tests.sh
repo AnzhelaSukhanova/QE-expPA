@@ -16,5 +16,6 @@ for in in exp/$IN
         ../main $in $out
         python ../check.py $in $out
     done
+rm check
 cd ..
 

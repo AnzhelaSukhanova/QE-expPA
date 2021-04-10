@@ -53,8 +53,8 @@ main(int argc, char *argv[])
 				else
 					free_expr = btor_node_copy(btor, exp_expr[i]->e[0]);
 				l2_expr[0] = l2(btor, free_expr);
-				btor_dumpsmt_dump_node(btor, fd_out, l2_expr[0], -1);
-				fprintf(fd_out, "\n");
+				//btor_dumpsmt_dump_node(btor, fd_out, l2_expr[0], -1);
+				//fprintf(fd_out, "\n");
 				l2_expr[1] = btor_exp_bv_add(btor, l2_expr[0], one);
 				case_expr[0] = replace_exvar(btor, exp_expr[i], l2_expr[0]);
 				case_expr[1] = replace_exvar(btor, exp_expr[i], l2_expr[1]);
