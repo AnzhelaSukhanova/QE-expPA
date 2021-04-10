@@ -182,12 +182,13 @@ l2(Btor *btor,  BtorNode *expr)
 {
 	BtorBitVector *bv;
 	BtorNode *cond_expr[bv_size], *power;
-	cond_expr[0] = btor_exp_bv_one(btor, 2);
+	cond_expr[0] = btor_exp_bv_zero(btor, 2);
 	for (int j = 1; j < bv_size; j++)
 	{
 		bv = btor_bv_uint64_to_bv(btor->mm, pow(2, j), bv_size);
 		power = btor_exp_bv_const(btor, bv);
-		cond_expr[j] = btor_exp_cond(btor, btor_exp_bv_ulte(btor, power, expr), power, cond_expr[j-1]);
+		bv = btor_bv_uint64_to_bv(btor->mm, j, bv_size);
+		cond_expr[j] = btor_exp_cond(btor, btor_exp_bv_ulte(btor, power, expr), btor_exp_bv_const(btor, bv), cond_expr[j-1]);
 	}
 	return cond_expr[bv_size - 1];
 }
