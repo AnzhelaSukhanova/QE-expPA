@@ -28,7 +28,7 @@ The implementation is currently working for formulas like <img src="https://rend
 * 11.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y %2B ((9 %2B 2) %2B z)">  
 
 **tests/exp** contains the following examples:  
-* 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^x\leq y"> (in progress)  
+* 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^x\leq y">  
 
 To run all tests and check the output use `sh all_tests.sh`
 
