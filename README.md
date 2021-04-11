@@ -30,10 +30,10 @@ The implementation is currently working for formulas like <img src="https://rend
 * exp2.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^y\cdot 3\leq x\wedge x\leq 2^y\cdot 7">  
 * exp3.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^y\leq x\wedge 2\leq x\wedge z\leq x">   
 * exp5.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^y\cdot 3\leq x\wedge x\leq y\cdot 12">  
-* exp6.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq 2^y\cdot 3\wedge z\leq x\wedge x\leq t">  
+* exp6.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq 2^y\cdot 3\wedge 2^z\leq x\wedge x\leq t">  
 * exp7.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq 2^y %2B z">  
-* exp8.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq 2^y\cdot 5 %2B y %2B 8">  
-* exp9.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq 2^y\cdot 2 %2B z\wedge 2^y\cdot 10\leq x">  
+* exp8.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq 2^y %2B y\cdot 5 %2B 8">  
+* exp9.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq 2^y\cdot 2 %2B 2^z\wedge 2^y\cdot 10\leq x">  
 * exp10.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq 2^y\cdot 5 %2B 7\wedge (2^y %2B z)\cdot 8\leq x">  
 
 **tests/exp** contains the following examples:  

@@ -1,1 +1,1 @@
-(let (($e1 (bvshl #b0011 y))) (not (and (not (and (not (bvult $e1 t)) (not (bvult t z)))) (not (and (not (bvult t $e1)) (not (bvult $e1 z)))))))
+(let (($e1 (bvshl #b0011 y))) (let (($e2 (bvshl #b0001 z))) (not (and (not (and (not (bvult $e1 t)) (not (bvult t $e2)))) (not (and (not (bvult t $e1)) (not (bvult $e1 $e2))))))))

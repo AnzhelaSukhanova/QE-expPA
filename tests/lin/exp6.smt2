@@ -6,5 +6,5 @@
 (assert
  (exists ((x (_ BitVec 4))) (and 
  (or (bvult x (bvmul #b0011 (bvshl #b0001 y))) (= x (bvmul #b0011 (bvshl #b0001 y)))) 
- (or (bvult z x) (= z x)) 
+ (or (bvult (bvshl #b0001 z) x) (= (bvshl #b0001 z) x)) 
  (or (bvult x t) (= x t)))))
