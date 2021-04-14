@@ -23,4 +23,4 @@
 **tests/exp** contains the following examples:  
 * 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^x\leq y">  
 * 2.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^x\leq y\cdot 11 %2B 4"> (in progress)  
-* 2.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^x\leq 2^y\cdot 5 %2B 7">  
+* 3.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^x\leq 2^y\cdot 5 %2B 7">  
