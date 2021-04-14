@@ -40,8 +40,10 @@ main(int argc, char *argv[])
 		BtorNode *res_expr;
 		if (formula_kind==2)
 		{
-			int N = 0; //N = max{b+ , c+ , b− , c−} but now exp-expr hasn't linear and free terms
-			BtorNode *l2_expr[2], *free_expr, *one, *case_expr[4], *const_expr[N + 1], *or_expr;
+			BtorNode *l2_expr[2], *free_expr, *one, *case_expr[3], *or_expr;
+			BtorNode *coef[3];
+			for(i = 0; i < 3; i++)
+				coef[i] = btor_exp_bv_zero(btor, 2);
 			BtorBitVector *one_bv = btor_bv_one(btor->mm, bv_size);
 			BtorBitVector *exp_coef_sum = get_exp_coef_sum(btor, exp_expr, exp_count);
 			uint64_t power = btor_bv_to_uint64(btor_bv_srl(btor->mm, exp_coef_sum, one_bv)) + 3; //δ = l2(Sum_i(|ai|)) + 3
@@ -49,10 +51,18 @@ main(int argc, char *argv[])
 			for (i = 0; i < exp_count; i++)
 			{
 				if (only_this_var(btor, exp_expr[i]->e[0], exists_var))
+				{
 					free_expr = btor_node_copy(btor, exp_expr[i]->e[1]);
+					get_coefs(btor, exp_expr[i]->e[0], coef);
+				}
 				else
+				{
 					free_expr = btor_node_copy(btor, exp_expr[i]->e[0]);
-				l2_expr[0] = l2(btor, free_expr);
+					get_coefs(btor, exp_expr[i]->e[1], coef);
+				}
+				int N = 0; //N = max{b+ , c+ , b− , c−} but now exp-expr hasn't linear and free terms
+				BtorNode *const_expr[N + 1];
+				l2_expr[0] = btor_exp_bv_sub(btor, l2(btor, free_expr), l2(btor, coef[0]));
 				//btor_dumpsmt_dump_node(btor, fd_out, l2_expr[0], -1);
 				//fprintf(fd_out, "\n");
 				l2_expr[1] = btor_exp_bv_add(btor, l2_expr[0], one);

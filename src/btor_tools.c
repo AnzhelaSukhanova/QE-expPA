@@ -3,58 +3,51 @@
 bool
 only_this_var(Btor *btor, BtorNode *expr, BtorNode *var)
 {
-	if (!btor_node_is_bv_const(expr) && !btor_node_is_bv_var(expr) &&
-		!btor_node_is_param(expr) && !btor_node_is_bv_slice(expr))
+	BtorNode *real_expr = btor_node_real_addr(expr);
+	if (!btor_node_is_bv_const(real_expr) && !btor_node_is_bv_var(real_expr) &&
+		!btor_node_is_param(real_expr) && !btor_node_is_bv_slice(real_expr))
 	{
-		uint32_t id = abs(btor_node_get_id(expr->e[0]));
-		BtorNode *child_expr = BTOR_PEEK_STACK(btor->nodes_id_table, id);
-		if (!only_this_var(btor, child_expr, var) && !btor_node_is_bv_const(child_expr))
-		{
+		if (!only_this_var(btor, real_expr->e[0], var))
 			return false;
-		}
-		id = abs(btor_node_get_id(expr->e[1]));
-		child_expr = BTOR_PEEK_STACK(btor->nodes_id_table, id);
-		return (only_this_var(btor, child_expr, var) || btor_node_is_bv_const(child_expr));
+		return (only_this_var(btor, real_expr->e[1], var));
 	}
+	else if (btor_node_is_bv_var(real_expr) || btor_node_is_param(real_expr))
+		return (real_expr==var);
 	else
-		return (expr==var);
+		return true;
 }
 
 bool
 without_this_var(Btor *btor, BtorNode *expr, BtorNode *var)
 {
-	if (!btor_node_is_bv_const(expr) && !btor_node_is_bv_var(expr) &&
-		!btor_node_is_param(expr) && !btor_node_is_bv_slice(expr))
+	BtorNode *real_expr = btor_node_real_addr(expr);
+	if (!btor_node_is_bv_const(real_expr) && !btor_node_is_bv_var(real_expr) &&
+		!btor_node_is_param(real_expr) && !btor_node_is_bv_slice(real_expr))
 	{
-		uint32_t id = abs(btor_node_get_id(expr->e[0]));
-		BtorNode *child_expr = BTOR_PEEK_STACK(btor->nodes_id_table, id);
-		if (!without_this_var(btor, expr->e[0], var))
+		if (!without_this_var(btor, real_expr->e[0], var))
 			return false;
-		id = abs(btor_node_get_id(expr->e[1]));
-		child_expr = BTOR_PEEK_STACK(btor->nodes_id_table, id);
-		return without_this_var(btor, child_expr, var);
+		return without_this_var(btor, real_expr->e[1], var);
+		return true;
 	}
 	else
-		return (expr!=var);
+		return (real_expr!=var);
 }
 
 bool
 without_vars(Btor *btor, BtorNode *expr)
 {
-    if (btor_node_is_bv_const(expr))
-        return true;
-    else if (!btor_node_is_bv_var(expr) && !btor_node_is_param(expr) && !btor_node_is_bv_slice(expr))
-    {
-        uint32_t id = abs(btor_node_get_id(expr->e[0]));
-        BtorNode *child_expr = BTOR_PEEK_STACK(btor->nodes_id_table, id);
-        if (!without_vars(btor, child_expr))
-            return false;
-        id = abs(btor_node_get_id(expr->e[1]));
-        child_expr = BTOR_PEEK_STACK(btor->nodes_id_table, id);
-        return without_vars(btor, child_expr);
-    }
-    else
-        return false;
+	BtorNode *real_expr = btor_node_real_addr(expr);
+	if (btor_node_is_bv_const(real_expr))
+		return true;
+	else if (!btor_node_is_bv_var(real_expr) && !btor_node_is_param(real_expr)
+		&& !btor_node_is_bv_slice(real_expr))
+	{
+		if (!without_vars(btor, real_expr->e[0]))
+			return false;
+		return without_vars(btor, real_expr->e[1]);
+	}
+	else
+		return false;
 }
 
 void
@@ -93,40 +86,37 @@ get_exists_var(Btor *btor)
 BtorNode *
 replace_exvar(Btor *btor, BtorNode *expr, BtorNode *value)
 {
-	if (expr==exists_var)
+	BtorNode *real_expr = btor_node_real_addr(expr);
+	if (real_expr==exists_var)
 		return value;
-	if (!btor_node_is_bv_const(expr) && !btor_node_is_bv_var(expr) &&
-		!btor_node_is_param(expr) && !btor_node_is_bv_slice(expr))
+	if (!btor_node_is_bv_const(real_expr) && !btor_node_is_bv_var(real_expr) &&
+		!btor_node_is_param(real_expr) && !btor_node_is_bv_slice(real_expr))
 	{
 		BtorNode *e[3], *res;
-		if (expr->e[0]==exists_var)
+		if (real_expr->e[0]==exists_var)
 		{
 			e[0] = value;
-			e[1] = expr->e[1];
-			e[2] = expr->e[2];
-			res = btor_exp_create(btor, expr->kind, e, expr->arity);
+			e[1] = real_expr->e[1];
+			e[2] = real_expr->e[2];
+			res = btor_exp_create(btor, real_expr->kind, e, real_expr->arity);
 		}
-		else if (expr->e[1]==exists_var)
+		else if (real_expr->e[1]==exists_var)
 		{
-			e[0] = expr->e[0];
+			e[0] = real_expr->e[0];
 			e[1] = value;
-			e[2] = expr->e[2];
-			res = btor_exp_create(btor, expr->kind, e, expr->arity);
+			e[2] = real_expr->e[2];
+			res = btor_exp_create(btor, real_expr->kind, e, real_expr->arity);
 		}
 		else
 		{
-			uint32_t id = abs(btor_node_get_id(expr->e[0]));
-			e[0] = btor_node_copy(btor, BTOR_PEEK_STACK(btor->nodes_id_table, id));
-			e[0] = replace_exvar(btor, e[0], value);
-			id = abs(btor_node_get_id(expr->e[1]));
-			e[1] = btor_node_copy(btor, BTOR_PEEK_STACK(btor->nodes_id_table, id));
-			e[1] = replace_exvar(btor, e[1], value);
-			e[2] = expr->e[2];
-			res = btor_exp_create(btor, expr->kind, e, expr->arity);
+			e[0] = replace_exvar(btor, real_expr->e[0], value);
+			e[1] = replace_exvar(btor, real_expr->e[1], value);
+			e[2] = real_expr->e[2];
+			res = btor_exp_create(btor, real_expr->kind, e, real_expr->arity);
 		}
 		return res;
 	}
-	return expr;
+	return real_expr;
 }
 
 BtorBitVector *
@@ -154,27 +144,28 @@ get_exp_coef_sum(Btor *btor, BtorNode **exp_expr, int exp_count)
 BtorNode *
 find_exp_by_child_kind(Btor *btor, BtorNode *expr, BtorNodeKind kind)
 {
-	assert(expr && !btor_node_is_bv_const(expr) && !btor_node_is_bv_var(expr) && !btor_node_is_param(expr)
-			   && !btor_node_is_bv_slice(expr));
-	if (expr->e[0]->kind!=kind)
+	BtorNode *real_expr = btor_node_real_addr(expr);
+	assert(
+		!btor_node_is_bv_const(real_expr) && !btor_node_is_bv_var(real_expr)
+			&& !btor_node_is_param(real_expr)
+			&& !btor_node_is_bv_slice(real_expr));
+	if (real_expr->e[0]->kind!=kind)
 	{
-		if (expr->e[1]->kind!=kind)
+		if (real_expr->e[1]->kind!=kind)
 		{
-			uint32_t id = abs(btor_node_get_id(expr->e[0]));
-			BtorNode *child_expr = BTOR_PEEK_STACK(btor->nodes_id_table, id);
-			child_expr = find_exp_by_child_kind(btor, child_expr, kind);
-			if (child_expr != NULL) return child_expr;
-			id = abs(btor_node_get_id(expr->e[0]));
-			child_expr = BTOR_PEEK_STACK(btor->nodes_id_table, id);
-			child_expr = find_exp_by_child_kind(btor, child_expr, kind);
-			if (child_expr != NULL) return child_expr;
+			BtorNode *child_expr = find_exp_by_child_kind(btor, real_expr->e[0], kind);
+			if (child_expr!=NULL)
+				return child_expr;
+			child_expr = find_exp_by_child_kind(btor, real_expr->e[1], kind);
+			if (child_expr!=NULL)
+				return child_expr;
 			return NULL;
 		}
 		else
-			return expr;
+			return real_expr;
 	}
 	else
-		return expr;
+		return real_expr;
 }
 
 BtorNode *
@@ -191,4 +182,44 @@ l2(Btor *btor,  BtorNode *expr)
 		cond_expr[j + 1] = btor_exp_cond(btor, btor_exp_bv_ulte(btor, power, expr), btor_exp_bv_const(btor, bv), cond_expr[j]);
 	}
 	return cond_expr[bv_size];
+}
+
+void
+get_coefs(Btor *btor,  BtorNode *expr, BtorNode *coef[3])
+{
+	BtorNode *real_expr = btor_node_real_addr(expr);
+	if (!btor_node_is_bv_const(real_expr) && !btor_node_is_bv_var(real_expr) && !btor_node_is_param(real_expr)
+		&& !btor_node_is_bv_slice(real_expr))
+	{
+		if (btor_node_is_bv_sll(real_expr->e[0]) || btor_node_is_bv_sll(real_expr->e[1]))
+		{
+			if (btor_node_is_bv_const(real_expr->e[0]))
+				coef[0] = real_expr->e[0];
+			else if (btor_node_is_bv_const(real_expr->e[1]))
+				coef[0] = real_expr->e[1];
+			else
+				coef[0] = btor_exp_bv_one(btor, 2);
+		}
+		if (btor_node_is_bv_sll(real_expr) && coef[0] == btor_exp_bv_zero(btor, 2))
+			coef[0] = btor_exp_bv_one(btor, 2);
+		if ((btor_node_is_bv_add(real_expr) || btor_node_is_bv_add(real_expr)) &&
+			(real_expr->e[0]==exists_var || real_expr->e[1]==exists_var))
+		{
+			if (btor_node_is_bv_const(real_expr->e[0]))
+				coef[1] = real_expr->e[0];
+			else if (btor_node_is_bv_const(real_expr->e[1]))
+				coef[1] = real_expr->e[1];
+			else
+				coef[1] = btor_exp_bv_one(btor, 2);
+		}
+		if (btor_node_is_bv_add(real_expr))
+		{
+			if (btor_node_is_bv_const(real_expr->e[0]))
+				coef[2] = real_expr->e[0];
+			else if (btor_node_is_bv_const(real_expr->e[1]))
+				coef[2] = real_expr->e[1];
+		}
+		get_coefs(btor, real_expr->e[0], coef);
+		get_coefs(btor, real_expr->e[1], coef);
+	}
 }

@@ -1,6 +1,5 @@
 #include "steps.h"
 
-//1st step: transform the formula into a disjunction of conjunction of inequations between terms of the specific forms
 BtorNode **
 transform_to_required_form()
 {
@@ -8,7 +7,6 @@ transform_to_required_form()
     return NULL;
 }
 
-//2nd step: put the formula in DNF
 void
 put_in_DNF()
 {
@@ -64,8 +62,10 @@ exvar_occurs_kind(Btor *btor, BtorNode **lin_expr, int *lin_count, BtorNode **ex
 				kind = without_vars(btor, expr->e[0]) && without_this_var(btor, expr->e[1], exists_var) ||
 					without_this_var(btor, expr->e[0], exists_var) && without_vars(btor, expr->e[1]) ? kind : 0;
 			else if (btor_node_is_bv_sll(expr)) //11
-				kind = only_this_var(btor, expr->e[0], exists_var) && without_this_var(btor, expr->e[1], exists_var) ||
-					only_this_var(btor, expr->e[1], exists_var) && without_this_var(btor, expr->e[0], exists_var) ? 2 : kind;
+			{
+				kind = only_this_var(btor, expr->e[1], exists_var)? 2 : kind;
+				kind = btor_node_is_bv_const(expr->e[0])? kind : 0;
+			}
 			else if (btor_node_is_bv_and(expr)) //5
 				kind = btor_node_is_param(expr->e[0]) || btor_node_is_bv_and(expr->e[0]) ||
 					btor_node_is_bv_ult(expr->e[0]) ||
