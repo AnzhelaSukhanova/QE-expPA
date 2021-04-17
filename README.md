@@ -14,7 +14,7 @@ If you want check the result use `python check.py tests/<test_file> <out_file>`
 The folder **tests** contains two subfolders: **lin** and **exp**. The first contains tests with a linear occurrence of the bound variable, and the second contains those tests in which the bound variable occurs in an exponential term.  
 The implementation is currently working for formulas like
 * <img src="https://render.githubusercontent.com/render/math?math=\exists x:\bigwedge (g_j(\overline{y})\leq x \wedge x\leq g_i(\overline{y}))">, where <img src="https://render.githubusercontent.com/render/math?math=\overline{y}"> — free variables, <img src="https://render.githubusercontent.com/render/math?math=g_i(\overline{y}), g_j(\overline{y})"> — terms in the signature of Presburger arithmetic expanded by <img src="https://render.githubusercontent.com/render/math?math=2^x">.  
-* <img src="https://render.githubusercontent.com/render/math?math=\exists x:\bigwedge (2^x %2B c\leq g_i(\overline{y}))">, where c~--- fixed-size bitvector.  
+* <img src="https://render.githubusercontent.com/render/math?math=\exists x:\bigwedge (2^x %2B c\leq g_i(\overline{y}))">, where c — fixed-size bitvector.  
 
 To run all tests and check the output use `sh all_tests.sh`
 
