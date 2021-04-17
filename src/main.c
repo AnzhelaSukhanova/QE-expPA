@@ -37,55 +37,12 @@ main(int argc, char *argv[])
 	int formula_kind = exvar_occurs_kind(btor, lin_expr, &lin_count, exp_expr, &exp_count);
 	if (formula_kind!=0)
 	{
-		BtorNode *res_expr;
+		BtorNode *res_expr, *or_expr;
 		if (formula_kind==2)
 		{
-			BtorNode *l2_expr[2], *free_expr, *one, *case_expr[3], *or_expr;
-			BtorNode *coef[3];
-			for(i = 0; i < 3; i++)
-				coef[i] = btor_exp_bv_zero(btor, 2);
-			BtorBitVector *one_bv = btor_bv_one(btor->mm, bv_size);
-			BtorBitVector *exp_coef_sum = get_exp_coef_sum(btor, exp_expr, exp_count);
-			uint64_t power = btor_bv_to_uint64(btor_bv_srl(btor->mm, exp_coef_sum, one_bv)) + 3; //δ = l2(Sum_i(|ai|)) + 3
-			one = btor_exp_bv_one(btor, 2);
 			for (i = 0; i < exp_count; i++)
 			{
-				if (only_this_var(btor, exp_expr[i]->e[0], exists_var))
-				{
-					free_expr = btor_node_copy(btor, exp_expr[i]->e[1]);
-					get_coefs(btor, exp_expr[i]->e[0], coef);
-				}
-				else
-				{
-					free_expr = btor_node_copy(btor, exp_expr[i]->e[0]);
-					get_coefs(btor, exp_expr[i]->e[1], coef);
-				}
-				BtorBitVector *bv;
-				for (int j = 0; j < 3; j++)
-					coef[j] = l2(btor, coef[j]);
-				bv = btor_node_is_inverted(coef[1]) ? btor_node_bv_const_get_invbits(coef[1]) : btor_node_bv_const_get_bits(coef[1]);
-				uint64_t b = 2*btor_bv_to_uint64(bv) + 3;
-				bv = btor_node_is_inverted(coef[2]) ? btor_node_bv_const_get_invbits(coef[2]) : btor_node_bv_const_get_bits(coef[2]);
-				uint64_t c = btor_bv_to_uint64(bv) + 3;
-				uint64_t N = max3(b, c,0);
-				BtorNode *const_expr[N + 1];
-				l2_expr[0] = btor_exp_bv_sub(btor, l2(btor, free_expr), coef[0]);
-				l2_expr[1] = btor_exp_bv_add(btor, l2_expr[0], one);
-				case_expr[0] = replace_exvar(btor, exp_expr[i], l2_expr[0]);
-				case_expr[1] = replace_exvar(btor, exp_expr[i], l2_expr[1]);
-				const_expr[0] = btor_exp_bv_zero(btor, 2);
-				case_expr[2] = replace_exvar(btor, exp_expr[i], const_expr[0]);
-				for (int j = 1; j <= N; j++)
-				{
-					bv = btor_bv_uint64_to_bv(btor->mm, j, bv_size);
-					const_expr[j] = btor_exp_bv_const(btor, bv);
-					case_expr[2] = btor_exp_bv_or(btor, case_expr[2], replace_exvar(btor, exp_expr[i], const_expr[j]));
-				}
-				//btor_dumpsmt_dump_node(btor, fd_out, case_expr[2], -1);
-				//fprintf(fd_out, "\n");
-				exp_expr[i] = case_expr[0];
-				for (int j = 1; j < 3; j++)
-					exp_expr[i] = btor_exp_bv_or(btor, exp_expr[i], case_expr[j]);
+				exp_expr[i] = qe_exp_case(btor, exp_expr[i]);
 				if (i%2==1)
 				{
 					or_expr = btor_exp_bv_or(btor, exp_expr[i], exp_expr[i - 1]);
@@ -93,21 +50,16 @@ main(int argc, char *argv[])
 				}
 				else if (i!=0)
 					res_expr = btor_exp_bv_and(btor, res_expr, or_expr);
-				for (int j = 1; j < 3; j++)
-					btor_node_release(btor, case_expr[j]);
-				btor_node_release(btor, l2_expr[1]);
-				btor_node_release(btor, l2_expr[0]);
-				btor_node_release(btor, free_expr);
 			}
 			if (lin_count)
 				res_expr = btor_exp_bv_or(btor, res_expr, qe_linear_case(btor, lin_expr, lin_count));
 		}
 		else
 		{
-			//x occurs linearly in every inequation occurring in the formula
 			res_expr = qe_linear_case(btor, lin_expr, lin_count);
 		}
 		btor_dumpsmt_dump_node(btor, fd_out, res_expr, -1);
+		fprintf(fd_out, "\n");
 		btor_node_release(btor, res_expr);
 		if (lin_count)
 			for (i = 0; i < lin_count; i++)

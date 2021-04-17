@@ -119,55 +119,6 @@ replace_exvar(Btor *btor, BtorNode *expr, BtorNode *value)
 	return real_expr;
 }
 
-BtorBitVector *
-get_exp_coef_sum(Btor *btor, BtorNode **exp_expr, int exp_count)
-{
-	BtorBitVector *sum = btor_bv_zero(btor->mm, bv_size);
-	BtorBitVector *coef;
-	BtorNode *expr;
-	for (int i = 0; i < exp_count; i++)
-	{
-		expr = find_exp_by_child_kind(btor, exp_expr[i], (BtorNodeKind) 11);
-		if (btor_node_is_bv_const(expr->e[0]))
-			coef = btor_node_is_inverted(expr->e[0]) ? btor_node_bv_const_get_invbits(expr->e[0])
-													 : btor_node_bv_const_get_bits(expr->e[0]);
-		else if (btor_node_is_bv_const(expr->e[1]))
-			coef = btor_node_is_inverted(expr->e[1]) ? btor_node_bv_const_get_invbits(expr->e[1])
-													 : btor_node_bv_const_get_bits(expr->e[1]);
-		else
-			coef = btor_bv_one(btor->mm, bv_size);
-		sum = btor_bv_add(btor->mm, sum, coef);
-	}
-	return sum;
-}
-
-BtorNode *
-find_exp_by_child_kind(Btor *btor, BtorNode *expr, BtorNodeKind kind)
-{
-	BtorNode *real_expr = btor_node_real_addr(expr);
-	assert(
-		!btor_node_is_bv_const(real_expr) && !btor_node_is_bv_var(real_expr)
-			&& !btor_node_is_param(real_expr)
-			&& !btor_node_is_bv_slice(real_expr));
-	if (real_expr->e[0]->kind!=kind)
-	{
-		if (real_expr->e[1]->kind!=kind)
-		{
-			BtorNode *child_expr = find_exp_by_child_kind(btor, real_expr->e[0], kind);
-			if (child_expr!=NULL)
-				return child_expr;
-			child_expr = find_exp_by_child_kind(btor, real_expr->e[1], kind);
-			if (child_expr!=NULL)
-				return child_expr;
-			return NULL;
-		}
-		else
-			return real_expr;
-	}
-	else
-		return real_expr;
-}
-
 BtorNode *
 l2(Btor *btor,  BtorNode *expr)
 {
@@ -191,7 +142,7 @@ l2(Btor *btor,  BtorNode *expr)
 	}
 	else
 	{
-		bv = btor_node_is_inverted(expr) ? btor_node_bv_const_get_invbits(expr) : btor_node_bv_const_get_bits(expr);
+		bv = btor_node_to_bv(expr);
 		uint64_t num = btor_bv_to_uint64(bv);
 		if (num != 0)
 			for (int j = 0; j < bv_size; j++)
@@ -242,4 +193,10 @@ get_coefs(Btor *btor,  BtorNode *expr, BtorNode *coef[3])
 		get_coefs(btor, real_expr->e[0], coef);
 		get_coefs(btor, real_expr->e[1], coef);
 	}
+}
+
+BtorBitVector *
+btor_node_to_bv(BtorNode *expr)
+{
+	return btor_node_is_inverted(expr) ? btor_node_bv_const_get_invbits(expr) : btor_node_bv_const_get_bits(expr);
 }

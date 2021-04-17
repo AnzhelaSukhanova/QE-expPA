@@ -34,16 +34,12 @@ BtorNode *get_exists_var(Btor *btor);
 //bound variable replacement
 BtorNode *replace_exvar(Btor *btor, BtorNode *expr, BtorNode *value);
 
-//returns the sum of the coefficients of exponential terms
-BtorBitVector *get_exp_coef_sum(Btor *btor, BtorNode **exp_expr, int exp_count);
-
-//returns an expression with a matching child
-BtorNode *find_exp_by_child_kind(Btor *btor, BtorNode *expr, BtorNodeKind kind);
-
 //integer logarithm base 2
 BtorNode *l2(Btor *btor,  BtorNode *expr);
 
 //coefficients in exponential, linear and free terms
 void get_coefs(Btor *btor,  BtorNode *expr, BtorNode *coef[3]);
+
+BtorBitVector *btor_node_to_bv(BtorNode *expr);
 
 #endif //COURSE_BTOR_TOOLS_H
