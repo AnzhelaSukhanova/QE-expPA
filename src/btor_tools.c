@@ -192,9 +192,9 @@ get_coefs(Btor *btor,  BtorNode *expr, BtorNode *coef[3])
 			else if (btor_node_is_bv_const(real_expr->e[1]))
 				coef[2] = btor_node_copy(btor, real_expr->e[1]);
 			if (real_expr->e[0]==exists_var)
-				coef[1] = btor_node_copy(btor, real_expr->e[0]);
+				coef[1] = btor_node_copy(btor, btor_exp_bv_one(btor, 2));
 			else if (real_expr->e[1]==exists_var)
-				coef[1] = btor_node_copy(btor, real_expr->e[1]);
+				coef[1] = btor_node_copy(btor, btor_exp_bv_one(btor, 2));
 		}
 		get_coefs(btor, real_expr->e[0], coef);
 		get_coefs(btor, real_expr->e[1], coef);
