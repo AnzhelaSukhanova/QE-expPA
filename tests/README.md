@@ -27,4 +27,5 @@
 * 4.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^x\leq 2^y %2B 11\cdot y %2B 4">  
 * 5.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^x\leq y %2B 3\cdot z %2B 8">  
 * 6.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^x\leq 7\cdot y\wedge 2^x\leq z\wedge 2^x\leq 2^t">  
+* 7.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^x %2B 2\leq y %2B 14">  
 

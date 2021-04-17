@@ -57,7 +57,8 @@ exvar_occurs_kind(Btor *btor, BtorNode **lin_expr, int *lin_count, BtorNode **ex
 				}
 			}
 			else if (btor_node_is_bv_add(expr)) //8
-				kind = without_this_var(btor, expr->e[0], exists_var) && without_this_var(btor, expr->e[1], exists_var) ? kind : 0;
+				kind = without_this_var(btor, expr->e[0], exists_var) && without_this_var(btor, expr->e[1], exists_var) ||
+					   btor_node_is_bv_sll(expr->e[0]) || btor_node_is_bv_sll(expr->e[1]) ? kind : 0;
 			else if (btor_node_is_bv_mul(expr)) //9
 				kind = without_vars(btor, expr->e[0]) && without_this_var(btor, expr->e[1], exists_var) ||
 					without_this_var(btor, expr->e[0], exists_var) && without_vars(btor, expr->e[1]) ? kind : 0;
@@ -74,7 +75,10 @@ exvar_occurs_kind(Btor *btor, BtorNode **lin_expr, int *lin_count, BtorNode **ex
 			else if (!btor_node_is_exists(expr)) //18
 				return 0;
 			if (kind==0)
+			{
+				printf("id: %d kind: %d\n", btor_node_get_id(expr), expr->kind);
 				return 0;
+			}
 		}
 	}
     return kind;
@@ -197,8 +201,8 @@ qe_linear_case(Btor *btor, BtorNode **ulte_expr, int ult_count)
 BtorNode *
 qe_exp_case(Btor *btor, BtorNode *exp_expr)
 {
-	BtorNode *l2_expr[2], *free_expr, *one, *case_expr[3];
-	BtorNode *coef[3];
+	BtorNode *l2_expr[2], *free_expr, *one, *case_expr[3], *res_expr;
+	BtorNode *coef[3], *l2_coef[3];
 	BtorBitVector *bv = btor_bv_one(btor->mm, bv_size);
 	one = btor_exp_bv_one(btor, 2);
 	uint64_t b, c, N;
@@ -217,14 +221,14 @@ qe_exp_case(Btor *btor, BtorNode *exp_expr)
 		left_ulte = 0;
 	}
 	for (int j = 0; j < 3; j++)
-		coef[j] = l2(btor, coef[j]);
-	bv = btor_node_to_bv(coef[1]);
+		l2_coef[j] = l2(btor, coef[j]);
+	bv = btor_node_to_bv(l2_coef[1]);
 	b = 2*btor_bv_to_uint64(bv) + 3;
-	bv = btor_node_to_bv(coef[2]);
+	bv = btor_node_to_bv(l2_coef[2]);
 	c = btor_bv_to_uint64(bv) + 3;
 	N = max3(b, c,0);
 	BtorNode *const_expr[N + 1];
-	l2_expr[0] = btor_exp_bv_sub(btor, l2(btor, free_expr), coef[0]);
+	l2_expr[0] = btor_exp_bv_sub(btor, l2(btor, free_expr), l2_coef[0]);
 	l2_expr[1] = btor_exp_bv_add(btor, l2_expr[0], one);
 	case_expr[0] = replace_exvar(btor, exp_expr, l2_expr[0]);
 	case_expr[1] = replace_exvar(btor, exp_expr, l2_expr[1]);
@@ -236,13 +240,13 @@ qe_exp_case(Btor *btor, BtorNode *exp_expr)
 		const_expr[j] = btor_exp_bv_const(btor, bv);
 		case_expr[2] = btor_exp_bv_or(btor, case_expr[2], replace_exvar(btor, exp_expr, const_expr[j]));
 	}
-	exp_expr = case_expr[0];
+	res_expr = case_expr[0];
 	for (int j = 1; j < 3; j++)
-		exp_expr = btor_exp_bv_or(btor, exp_expr, case_expr[j]);
+		res_expr = btor_exp_bv_or(btor, res_expr, case_expr[j]);
 	for (int j = 1; j < 3; j++)
 		btor_node_release(btor, case_expr[j]);
 	btor_node_release(btor, l2_expr[1]);
 	btor_node_release(btor, l2_expr[0]);
 	btor_node_release(btor, free_expr);
-	return exp_expr;
+	return res_expr;
 }

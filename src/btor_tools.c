@@ -162,33 +162,39 @@ get_coefs(Btor *btor,  BtorNode *expr, BtorNode *coef[3])
 	if (!btor_node_is_bv_const(real_expr) && !btor_node_is_bv_var(real_expr) && !btor_node_is_param(real_expr)
 		&& !btor_node_is_bv_slice(real_expr))
 	{
-		if (btor_node_is_bv_sll(real_expr->e[0]) || btor_node_is_bv_sll(real_expr->e[1]))
+		if (btor_node_is_bv_mul(real_expr))
 		{
-			if (btor_node_is_bv_const(real_expr->e[0]))
-				coef[0] = real_expr->e[0];
-			else if (btor_node_is_bv_const(real_expr->e[1]))
-				coef[0] = real_expr->e[1];
-			else
-				coef[0] = btor_exp_bv_one(btor, 2);
+			if (btor_node_is_bv_sll(real_expr->e[0]) || btor_node_is_bv_sll(real_expr->e[1]))
+			{
+				if (btor_node_is_bv_const(real_expr->e[0]))
+					coef[0] = btor_node_copy(btor, real_expr->e[0]);
+				else if (btor_node_is_bv_const(real_expr->e[1]))
+					coef[0] = btor_node_copy(btor, real_expr->e[1]);
+				else
+					coef[0] = btor_node_copy(btor, btor_exp_bv_one(btor, 2));
+			}
+			else if (real_expr->e[0]==exists_var || real_expr->e[1]==exists_var)
+			{
+				if (btor_node_is_bv_const(real_expr->e[0]))
+					coef[1] = btor_node_copy(btor, real_expr->e[0]);
+				else if (btor_node_is_bv_const(real_expr->e[1]))
+					coef[1] = btor_node_copy(btor, real_expr->e[1]);
+				else
+					coef[1] = btor_node_copy(btor, btor_exp_bv_one(btor, 2));
+			}
 		}
-		if (btor_node_is_bv_sll(real_expr) && coef[0] == btor_exp_bv_zero(btor, 2))
-			coef[0] = btor_exp_bv_one(btor, 2);
-		if ((btor_node_is_bv_add(real_expr) || btor_node_is_bv_add(real_expr)) &&
-			(real_expr->e[0]==exists_var || real_expr->e[1]==exists_var))
+		else if (btor_node_is_bv_sll(real_expr) && coef[0] == btor_exp_bv_zero(btor, 2))
+			coef[0] = btor_node_copy(btor, btor_exp_bv_one(btor, 2));
+		else if (btor_node_is_bv_add(real_expr))
 		{
 			if (btor_node_is_bv_const(real_expr->e[0]))
-				coef[1] = real_expr->e[0];
+				coef[2] = btor_node_copy(btor, real_expr->e[0]);
 			else if (btor_node_is_bv_const(real_expr->e[1]))
-				coef[1] = real_expr->e[1];
-			else
-				coef[1] = btor_exp_bv_one(btor, 2);
-		}
-		if (btor_node_is_bv_add(real_expr))
-		{
-			if (btor_node_is_bv_const(real_expr->e[0]))
-				coef[2] = real_expr->e[0];
-			else if (btor_node_is_bv_const(real_expr->e[1]))
-				coef[2] = real_expr->e[1];
+				coef[2] = btor_node_copy(btor, real_expr->e[1]);
+			if (real_expr->e[0]==exists_var)
+				coef[1] = btor_node_copy(btor, real_expr->e[0]);
+			else if (real_expr->e[1]==exists_var)
+				coef[1] = btor_node_copy(btor, real_expr->e[1]);
 		}
 		get_coefs(btor, real_expr->e[0], coef);
 		get_coefs(btor, real_expr->e[1], coef);

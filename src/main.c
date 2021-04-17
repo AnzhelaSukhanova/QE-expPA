@@ -3,7 +3,6 @@
 
 extern "C" {
 #include "boolector.h"
-#include "dumper/btordumpsmt.h"
 };
 
 size_t stack_size;
@@ -37,22 +36,19 @@ main(int argc, char *argv[])
 	int formula_kind = exvar_occurs_kind(btor, lin_expr, &lin_count, exp_expr, &exp_count);
 	if (formula_kind!=0)
 	{
-		BtorNode *res_expr, *or_expr;
+		BtorNode *res_expr;
 		if (formula_kind==2)
 		{
-			for (i = 0; i < exp_count; i++)
+			BtorNode *or_expr, *ulte_expr1, *ulte_expr2;
+			for (i = 1; i < exp_count; i+=2)
 			{
-				exp_expr[i] = qe_exp_case(btor, exp_expr[i]);
-				if (i%2==1)
-				{
-					or_expr = btor_exp_bv_or(btor, exp_expr[i], exp_expr[i - 1]);
-					res_expr = i==1? or_expr : btor_exp_bv_and(btor, res_expr, or_expr);
-				}
-				else if (i!=0)
-					res_expr = btor_exp_bv_and(btor, res_expr, or_expr);
+				ulte_expr1 = qe_exp_case(btor, exp_expr[i]);
+				ulte_expr2 = qe_exp_case(btor, exp_expr[i - 1]);
+				or_expr = btor_exp_bv_or(btor, ulte_expr1, ulte_expr2);
+				res_expr = i==1 ? or_expr : btor_exp_bv_and(btor, res_expr, or_expr);
 			}
 			if (lin_count)
-				res_expr = btor_exp_bv_or(btor, res_expr, qe_linear_case(btor, lin_expr, lin_count));
+				res_expr = btor_exp_bv_and(btor, res_expr, qe_linear_case(btor, lin_expr, lin_count));
 		}
 		else
 		{

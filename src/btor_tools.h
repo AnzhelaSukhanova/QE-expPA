@@ -10,6 +10,7 @@ extern "C" {
 #include "btorcore.h"
 #include "btorexp.h"
 #include "btorbv.h"
+#include "dumper/btordumpsmt.h"
 };
 
 extern size_t stack_size;
