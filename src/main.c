@@ -60,23 +60,29 @@ main(int argc, char *argv[])
 					free_expr = btor_node_copy(btor, exp_expr[i]->e[0]);
 					get_coefs(btor, exp_expr[i]->e[1], coef);
 				}
-				int N = 0; //N = max{b+ , c+ , b− , c−} but now exp-expr hasn't linear and free terms
+				BtorBitVector *bv;
+				for (int j = 0; j < 3; j++)
+					coef[j] = l2(btor, coef[j]);
+				bv = btor_node_is_inverted(coef[1]) ? btor_node_bv_const_get_invbits(coef[1]) : btor_node_bv_const_get_bits(coef[1]);
+				uint64_t b = 2*btor_bv_to_uint64(bv) + 3;
+				bv = btor_node_is_inverted(coef[2]) ? btor_node_bv_const_get_invbits(coef[2]) : btor_node_bv_const_get_bits(coef[2]);
+				uint64_t c = btor_bv_to_uint64(bv) + 3;
+				uint64_t N = max3(b, c,0);
 				BtorNode *const_expr[N + 1];
-				l2_expr[0] = btor_exp_bv_sub(btor, l2(btor, free_expr), l2(btor, coef[0]));
-				//btor_dumpsmt_dump_node(btor, fd_out, l2_expr[0], -1);
-				//fprintf(fd_out, "\n");
+				l2_expr[0] = btor_exp_bv_sub(btor, l2(btor, free_expr), coef[0]);
 				l2_expr[1] = btor_exp_bv_add(btor, l2_expr[0], one);
 				case_expr[0] = replace_exvar(btor, exp_expr[i], l2_expr[0]);
 				case_expr[1] = replace_exvar(btor, exp_expr[i], l2_expr[1]);
 				const_expr[0] = btor_exp_bv_zero(btor, 2);
 				case_expr[2] = replace_exvar(btor, exp_expr[i], const_expr[0]);
-				BtorBitVector *bv;
 				for (int j = 1; j <= N; j++)
 				{
 					bv = btor_bv_uint64_to_bv(btor->mm, j, bv_size);
 					const_expr[j] = btor_exp_bv_const(btor, bv);
 					case_expr[2] = btor_exp_bv_or(btor, case_expr[2], replace_exvar(btor, exp_expr[i], const_expr[j]));
 				}
+				//btor_dumpsmt_dump_node(btor, fd_out, case_expr[2], -1);
+				//fprintf(fd_out, "\n");
 				exp_expr[i] = case_expr[0];
 				for (int j = 1; j < 3; j++)
 					exp_expr[i] = btor_exp_bv_or(btor, exp_expr[i], case_expr[j]);
