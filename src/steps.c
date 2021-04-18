@@ -57,11 +57,14 @@ exvar_occurs_kind(Btor *btor, BtorNode **lin_expr, int *lin_count, BtorNode **ex
 				}
 			}
 			else if (btor_node_is_bv_add(expr)) //8
-				kind = without_this_var(btor, expr->e[0], exists_var) && without_this_var(btor, expr->e[1], exists_var) ||
+				kind = without_this_var(btor, expr->e[0], exists_var) || without_this_var(btor, expr->e[1], exists_var) ||
 					   btor_node_is_bv_sll(expr->e[0]) || btor_node_is_bv_sll(expr->e[1]) ? kind : 0;
 			else if (btor_node_is_bv_mul(expr)) //9
-				kind = without_vars(btor, expr->e[0]) && without_this_var(btor, expr->e[1], exists_var) ||
-					without_this_var(btor, expr->e[0], exists_var) && without_vars(btor, expr->e[1]) ? kind : 0;
+			{
+				kind = without_vars(btor, expr->e[0]) || without_vars(btor, expr->e[1]) ? kind : 0;
+				if (kind == 1)
+					kind = expr->e[0] != exists_var && expr->e[1] != exists_var;
+			}
 			else if (btor_node_is_bv_sll(expr)) //11
 			{
 				kind = only_this_var(btor, expr->e[1], exists_var)? 2 : kind;
@@ -243,10 +246,10 @@ qe_exp_case(Btor *btor, BtorNode *exp_expr)
 	res_expr = case_expr[0];
 	for (int j = 1; j < 3; j++)
 		res_expr = btor_exp_bv_or(btor, res_expr, case_expr[j]);
-	for (int j = 1; j < 3; j++)
+	for (int j = 0; j < 3; j++)
 		btor_node_release(btor, case_expr[j]);
-	btor_node_release(btor, l2_expr[1]);
-	btor_node_release(btor, l2_expr[0]);
+	for (int j = 0; j < 2; j++)
+		btor_node_release(btor, l2_expr[j]);
 	btor_node_release(btor, free_expr);
 	return res_expr;
 }

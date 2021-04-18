@@ -23,7 +23,7 @@ main(int argc, char *argv[])
 	BTOR_ABORT(status, error_msg);
 
 	BtorNode **new_vars = transform_to_required_form(); //vector x
-	stack_size = BTOR_COUNT_STACK(btor->nodes_id_table);
+	stack_size = get_stack_size(btor);
 	exists_var = get_exists_var(btor); //x_0
 	bv_size = btor_sort_bv_get_width(btor, btor_node_get_sort_id(exists_var));
 	put_in_DNF();

@@ -29,7 +29,10 @@ bool without_vars(Btor *btor, BtorNode *expr);
 //debug output
 void printf_exprs_info(Btor *btor);
 
-//return variable bound by the existential quantifier
+//returns the size of the formula stack
+size_t get_stack_size(Btor *btor);
+
+//returns variable bound by the existential quantifier
 BtorNode *get_exists_var(Btor *btor);
 
 //bound variable replacement
