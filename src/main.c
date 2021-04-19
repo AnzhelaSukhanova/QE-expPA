@@ -24,7 +24,17 @@ main(int argc, char *argv[])
 
 	BtorNode **new_vars = transform_to_required_form(); //vector x
 	stack_size = get_stack_size(btor);
+	//btor_dumpsmt_dump_node(btor, stdout, BTOR_PEEK_STACK(btor->nodes_id_table, stack_size-1), -1);
+	//fprintf(stdout, "\n");
 	exists_var = get_exists_var(btor); //x_0
+	if (exists_var == NULL)
+	{
+		btor_dumpsmt_dump_node(btor, fd_out,  btor_exp_true(btor), -1);
+		fprintf(fd_out, "\n");
+		boolector_delete(btor);
+		fclose(fd_out);
+		return 0;
+	}
 	bv_size = btor_sort_bv_get_width(btor, btor_node_get_sort_id(exists_var));
 	put_in_DNF();
 	//printf_exprs_info(btor);
@@ -40,6 +50,8 @@ main(int argc, char *argv[])
 		if (formula_kind==2)
 		{
 			BtorNode *or_expr, *ulte_expr1, *ulte_expr2;
+			if (exp_count == 1)
+				res_expr = qe_exp_case(btor, exp_expr[0]);
 			for (i = 1; i < exp_count; i+=2)
 			{
 				ulte_expr1 = qe_exp_case(btor, exp_expr[i]);

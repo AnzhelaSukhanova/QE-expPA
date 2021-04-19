@@ -76,7 +76,11 @@ get_stack_size(Btor *btor)
 BtorNode *
 get_exists_var(Btor *btor)
 {
-	return (BtorNode *) btor->exists_vars->first->key;
+	if (btor->exists_vars->first != NULL)
+	{
+		return (BtorNode *)btor->exists_vars->first->key;
+	}
+	return NULL;
 }
 
 BtorNode *
@@ -103,9 +107,10 @@ l2(Btor *btor,  BtorNode *expr)
 {
 	BtorBitVector *bv;
 	uint64_t power = 1;
+	int max = pow(2, bv_size) - 1;
 	if (!btor_node_is_bv_const(expr))
 	{
-		bv = btor_bv_uint64_to_bv(btor->mm, bv_size, bv_size);;
+		bv = btor_bv_uint64_to_bv(btor->mm, max, bv_size);;
 		BtorNode *cond_expr[bv_size + 1], *btor_power;
 		cond_expr[0] = btor_exp_bv_const(btor, bv);
 		for (int j = 0; j < bv_size; j++)
@@ -130,7 +135,7 @@ l2(Btor *btor,  BtorNode *expr)
 					return btor_exp_bv_const(btor, btor_bv_uint64_to_bv(btor->mm, j, bv_size));
 				power *= 2;
 			}
-		return btor_exp_bv_const(btor, btor_bv_uint64_to_bv(btor->mm, bv_size, bv_size));
+		return btor_exp_bv_const(btor, btor_bv_uint64_to_bv(btor->mm, max, bv_size));
 	}
 }
 

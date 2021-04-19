@@ -19,7 +19,7 @@ if __name__ == '__main__':
     btor = Boolector()
     (res, status, error_msg) = btor.Parse('check')
     result = btor.Sat()
-    if result != 10:
+    if result != btor.SAT:
         print(sys.argv[1] + ': PASS')
     else:
         print(sys.argv[1] + ': NOT PASS')
