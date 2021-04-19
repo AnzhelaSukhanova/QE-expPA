@@ -48,7 +48,7 @@ main(int argc, char *argv[])
 				res_expr = i==1 ? or_expr : btor_exp_bv_and(btor, res_expr, or_expr);
 			}
 			if (lin_count)
-				res_expr = btor_exp_bv_and(btor, res_expr, qe_linear_case(btor, lin_expr, lin_count));
+				res_expr = btor_exp_bv_or(btor, res_expr, qe_linear_case(btor, lin_expr, lin_count));
 		}
 		else
 		{
@@ -60,13 +60,9 @@ main(int argc, char *argv[])
 		if (lin_count)
 			for (i = 0; i < lin_count; i++)
 				btor_node_release(btor, lin_expr[i]);
-		if (exp_count)
-			for (i = 0; i < exp_count; i++)
-				btor_node_release(btor, exp_expr[i]);
 	}
 	else
 		BTOR_ABORT(true, "The formula did not transformed to the required form");
-
 	boolector_delete(btor);
 	fclose(fd_out);
 	return 0;

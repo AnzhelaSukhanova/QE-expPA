@@ -72,13 +72,14 @@ exvar_occurs_kind(Btor *btor, BtorNode **lin_expr, int *lin_count, BtorNode **ex
 			}
 			else if (btor_node_is_bv_and(expr)) //5
 				kind = btor_node_is_param(expr->e[0]) || btor_node_is_bv_and(expr->e[0]) ||
-					btor_node_is_bv_ult(expr->e[0]) ||
+					btor_node_is_bv_ult(expr->e[0]) || btor_node_is_bv_eq(expr->e[0]) ||
 					btor_node_is_param(expr->e[1]) || btor_node_is_bv_and(expr->e[1]) ||
-					btor_node_is_bv_ult(expr->e[1]) ? kind : 0;
+					btor_node_is_bv_ult(expr->e[1]) || btor_node_is_bv_eq(expr->e[1]) ? kind : 0;
 			else if (!btor_node_is_exists(expr)) //18
 				return 0;
 			if (kind==0)
 			{
+				//debug output
 				printf("id: %d kind: %d\n", btor_node_get_id(expr), expr->kind);
 				return 0;
 			}

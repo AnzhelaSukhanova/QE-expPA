@@ -31,3 +31,6 @@
 * 8.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:11\cdot 2^x\leq y %2B 12">  
 * 9.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^x %2B x\leq 2^y %2B y %2B 1">  
 
+**tests/mix** contains the following examples:  
+* 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:2^x\leq z \vee x\leq y">  
+
