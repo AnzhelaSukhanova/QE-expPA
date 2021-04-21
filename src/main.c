@@ -28,7 +28,10 @@ main(int argc, char *argv[])
 	exists_var = get_exists_var(btor); //x_0
 	if (exists_var == NULL)
 	{
-		btor_dumpsmt_dump_node(btor, fd_out, btor_exp_true(btor), -1);
+		if (btor->inconsistent)
+			btor_dumpsmt_dump_node(btor, fd_out, btor_exp_false(btor), -1);
+		else
+			btor_dumpsmt_dump_node(btor, fd_out, btor_exp_true(btor), -1);
 		fprintf(fd_out, "\n");
 		boolector_delete(btor);
 		fclose(fd_out);
