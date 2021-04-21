@@ -153,7 +153,7 @@ get_coefs(Btor *btor,  BtorNode *expr, BtorNode *coef[3])
 			else if (btor_node_is_bv_const(real_expr->e[1]))
 				coef[0] = btor_node_copy(btor, real_expr->e[1]);
 			else
-				coef[0] = btor_node_copy(btor, btor_exp_bv_one(btor, 2));
+				coef[0] = btor_node_copy(btor, one);
 		}
 		else if (btor_node_is_bv_mul(real_expr) && (real_expr->e[0]==exists_var || real_expr->e[1]==exists_var))
 		{
@@ -162,7 +162,7 @@ get_coefs(Btor *btor,  BtorNode *expr, BtorNode *coef[3])
 				else if (btor_node_is_bv_const(real_expr->e[1]))
 					coef[1] = btor_node_copy(btor, real_expr->e[1]);
 				else
-					coef[1] = btor_node_copy(btor, btor_exp_bv_one(btor, 2));
+					coef[1] = btor_node_copy(btor, one);
 		}
 		else if (btor_node_is_bv_add(real_expr))
 		{
@@ -171,9 +171,9 @@ get_coefs(Btor *btor,  BtorNode *expr, BtorNode *coef[3])
 			else if (btor_node_is_bv_const(real_expr->e[1]))
 				coef[2] = btor_node_copy(btor, real_expr->e[1]);
 			if (real_expr->e[0]==exists_var)
-				coef[1] = btor_node_copy(btor, btor_exp_bv_one(btor, 2));
+				coef[1] = btor_node_copy(btor, one);
 			else if (real_expr->e[1]==exists_var)
-				coef[1] = btor_node_copy(btor, btor_exp_bv_one(btor, 2));
+				coef[1] = btor_node_copy(btor, one);
 		}
 		get_coefs(btor, real_expr->e[0], coef);
 		get_coefs(btor, real_expr->e[1], coef);
@@ -184,4 +184,13 @@ BtorBitVector *
 btor_node_to_bv(BtorNode *expr)
 {
 	return btor_node_is_inverted(expr) ? btor_node_bv_const_get_invbits(expr) : btor_node_bv_const_get_bits(expr);
+}
+
+bool
+same_children(BtorNode *expr1, BtorNode *expr2)
+{
+	BtorNode *real_expr1 = btor_node_real_addr(expr1);
+	BtorNode *real_expr2 = btor_node_real_addr(expr2);
+	return ((real_expr1->e[0] == real_expr2->e[0] && real_expr1->e[1] == real_expr2->e[1]) ||
+		    (real_expr1->e[0] == real_expr2->e[1] && real_expr1->e[1] == real_expr2->e[0]));
 }

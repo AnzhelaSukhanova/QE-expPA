@@ -16,6 +16,7 @@ extern "C" {
 extern size_t stack_size;
 extern BtorNode *exists_var;
 extern int bv_size;
+extern BtorNode *one;
 
 //true if only the specified variable appears in the expression
 bool only_this_var(Btor *btor, BtorNode *expr, BtorNode *var);
@@ -45,5 +46,7 @@ BtorNode *l2(Btor *btor,  BtorNode *expr);
 void get_coefs(Btor *btor,  BtorNode *expr, BtorNode *coef[3]);
 
 BtorBitVector *btor_node_to_bv(BtorNode *expr);
+
+bool same_children(BtorNode *expr1, BtorNode *expr2);
 
 #endif //COURSE_BTOR_TOOLS_H

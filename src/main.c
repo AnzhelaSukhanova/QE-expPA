@@ -24,12 +24,11 @@ main(int argc, char *argv[])
 
 	BtorNode **new_vars = transform_to_required_form(); //vector x
 	stack_size = get_stack_size(btor);
-	//btor_dumpsmt_dump_node(btor, stdout, BTOR_PEEK_STACK(btor->nodes_id_table, stack_size-1), -1);
-	//fprintf(stdout, "\n");
+
 	exists_var = get_exists_var(btor); //x_0
 	if (exists_var == NULL)
 	{
-		btor_dumpsmt_dump_node(btor, fd_out,  btor_exp_true(btor), -1);
+		btor_dumpsmt_dump_node(btor, fd_out, btor_exp_true(btor), -1);
 		fprintf(fd_out, "\n");
 		boolector_delete(btor);
 		fclose(fd_out);
@@ -54,9 +53,14 @@ main(int argc, char *argv[])
 				res_expr = qe_exp_case(btor, exp_expr[0]);
 			for (i = 1; i < exp_count; i+=2)
 			{
-				ulte_expr1 = qe_exp_case(btor, exp_expr[i]);
-				ulte_expr2 = qe_exp_case(btor, exp_expr[i - 1]);
-				or_expr = btor_exp_bv_or(btor, ulte_expr1, ulte_expr2);
+				if (exp_expr[i-1] == exp_expr[i])
+					or_expr = qe_exp_case(btor, exp_expr[i]);
+				else
+				{
+					ulte_expr1 = qe_exp_case(btor, exp_expr[i]);
+					ulte_expr2 = qe_exp_case(btor, exp_expr[i - 1]);
+					or_expr = btor_exp_bv_or(btor, ulte_expr1, ulte_expr2);
+				}
 				res_expr = i==1 ? or_expr : btor_exp_bv_and(btor, res_expr, or_expr);
 			}
 			if (lin_count)

@@ -1,5 +1,7 @@
 #include "steps.h"
 
+BtorNode *one;
+
 BtorNode **
 transform_to_required_form()
 {
@@ -16,8 +18,8 @@ put_in_DNF()
 int
 exvar_occurs_kind(Btor *btor, BtorNode **lin_expr, int *lin_count, BtorNode **exp_expr, int *exp_count)
 {
+	one = btor_exp_bv_one(btor, 2);
     int kind = 1;
-    int eq_count = 0;
     BtorNode *expr;
     for (int i = 1; i < stack_size; i++)
 	{
@@ -25,37 +27,9 @@ exvar_occurs_kind(Btor *btor, BtorNode **lin_expr, int *lin_count, BtorNode **ex
 		if (expr && !btor_node_is_bv_const(expr) && !btor_node_is_bv_var(expr) &&
 			!btor_node_is_param(expr) && !btor_node_is_bv_slice(expr))
 		{
-			if (btor_node_is_bv_ult(expr)) //10
-			{
-				if (without_this_var(btor, expr->e[1], exists_var) || without_this_var(btor, expr->e[0], exists_var))
-				{
-					if (expr->e[0]==exists_var || expr->e[1]==exists_var)
-					{
-						lin_expr[*lin_count] = btor_node_copy(btor, expr);
-						(*lin_count)++;
-					}
-					else if (only_this_var(btor, expr->e[0], exists_var) || only_this_var(btor, expr->e[1], exists_var))
-					{
-						exp_expr[*exp_count] = btor_node_copy(btor, expr);
-						(*exp_count)++;
-					}
-					else
-						kind = 0;
-				}
-			}
-			else if (btor_node_is_bv_eq(expr)) //6
-			{
-				if (without_this_var(btor, expr->e[1], exists_var) || without_this_var(btor, expr->e[0], exists_var))
-				{
-					if (only_this_var(btor, expr->e[0], exists_var) || only_this_var(btor, expr->e[1], exists_var))
-					{
-						exp_expr[*exp_count] = btor_node_copy(btor, expr);
-						(*exp_count)++;
-					}
-					else if (expr->e[0]!=exists_var && expr->e[1]!=exists_var)
-						kind = 0;
-				}
-			}
+			if (btor_node_is_bv_ult(expr) || btor_node_is_bv_eq(expr)) //10, 6
+				kind = (without_this_var(btor, expr->e[1], exists_var) && only_this_var(btor, expr->e[0], exists_var)) ||
+					   (without_this_var(btor, expr->e[0], exists_var) && only_this_var(btor, expr->e[1], exists_var)) ? kind : 0;
 			else if (btor_node_is_bv_add(expr)) //8
 				kind = without_this_var(btor, expr->e[0], exists_var) || without_this_var(btor, expr->e[1], exists_var) ||
 					   btor_node_is_bv_sll(expr->e[0]) || btor_node_is_bv_sll(expr->e[1]) ? kind : 0;
@@ -71,11 +45,94 @@ exvar_occurs_kind(Btor *btor, BtorNode **lin_expr, int *lin_count, BtorNode **ex
 				kind = btor_node_is_bv_const(expr->e[0])? kind : 0;
 			}
 			else if (btor_node_is_bv_and(expr)) //5
-				kind = btor_node_is_param(expr->e[0]) || btor_node_is_bv_and(expr->e[0]) ||
-					btor_node_is_bv_ult(expr->e[0]) || btor_node_is_bv_eq(expr->e[0]) ||
-					btor_node_is_param(expr->e[1]) || btor_node_is_bv_and(expr->e[1]) ||
-					btor_node_is_bv_ult(expr->e[1]) || btor_node_is_bv_eq(expr->e[1]) ? kind : 0;
-			else if (!btor_node_is_exists(expr)) //18
+			{
+				BtorNode *real_child[2];
+				for (int j = 0; j < 2; j++)
+					real_child[j] = btor_node_real_addr(expr->e[j]);
+				for (int j = 0; j < 2; j++)
+				{
+					if (btor_node_is_bv_eq(expr->e[j]))
+					{
+						if (!same_children(expr->e[j], expr->e[1-j]) || !btor_node_is_bv_ult(expr->e[1-j]))
+						{
+							if (real_child[j]->e[0]!=exists_var && real_child[j]->e[1]!=exists_var)
+							{
+								exp_expr[*exp_count] = btor_node_copy(btor, real_child[j]);
+								(*exp_count)++;
+								exp_expr[*exp_count] = btor_node_copy(btor, real_child[j]);
+								(*exp_count)++;
+							}
+							else
+							{
+								BtorNode *sub_expr = btor_exp_bv_sub(btor, real_child[j]->e[1], one);
+								BtorNode *add_expr = btor_exp_bv_add(btor, real_child[j]->e[1], one);
+								lin_expr[*lin_count] = btor_exp_bv_ult(btor, real_child[j]->e[0], add_expr);
+								(*lin_count)++;
+								lin_expr[*lin_count] = btor_exp_bv_ult(btor, sub_expr, real_child[j]->e[0]);
+								(*lin_count)++;
+							}
+						}
+					}
+					else if (btor_node_is_bv_ult(expr->e[j]))
+					{
+						if (real_child[j]->e[0]!=exists_var && real_child[j]->e[1]!=exists_var)
+						{
+							if (!same_children(expr->e[j], expr->e[1-j]) || !btor_node_is_bv_eq(expr->e[1-j]))
+							{
+								BtorNode *sub_expr = btor_exp_bv_sub(btor, real_child[j]->e[1], one);
+								exp_expr[*exp_count] = btor_exp_bv_ult(btor, real_child[j]->e[0], sub_expr);
+								(*exp_count)++;
+								exp_expr[*exp_count] = btor_exp_eq(btor, real_child[j]->e[0], sub_expr);
+								(*exp_count)++;
+							}
+							else
+							{
+								exp_expr[*exp_count] = btor_node_copy(btor, real_child[j]);
+								(*exp_count)++;
+								exp_expr[*exp_count] = btor_node_copy(btor, real_child[1-j]);
+								(*exp_count)++;
+							}
+						}
+						else
+						{
+							if (same_children(expr->e[j], expr->e[1-j]) && btor_node_is_bv_eq(expr->e[1-j]))
+							{
+								lin_expr[*lin_count] = btor_node_copy(btor, real_child[j]);
+								(*lin_count)++;
+							}
+							else
+							{
+								BtorNode *sub_expr = btor_exp_bv_sub(btor, real_child[j]->e[1], one);
+								lin_expr[*lin_count] = btor_exp_bv_ulte(btor, real_child[j]->e[0], sub_expr);
+								(*lin_count)++;
+							}
+						}
+					}
+				}
+			}
+			else if (btor_node_is_exists(expr)) //18
+			{
+				BtorNode *real_child[2];
+				for (int j = 0; j < 2; j++)
+					real_child[j] = btor_node_real_addr(expr->e[j]);
+				if (real_child[0]->e[0]!=exists_var && real_child[0]->e[1]!=exists_var)
+					if (btor_node_is_bv_eq(expr->e[0]))
+					{
+						BtorNode *sub_expr = btor_exp_bv_sub(btor, real_child[0]->e[1], one);
+						BtorNode *add_expr = btor_exp_bv_add(btor, real_child[0]->e[1], one);
+						lin_expr[*lin_count] = btor_exp_bv_ult(btor, real_child[0]->e[0], add_expr);
+						(*lin_count)++;
+						lin_expr[*lin_count] = btor_exp_bv_ult(btor, sub_expr, real_child[0]->e[0]);
+						(*lin_count)++;
+					}
+					else if (btor_node_is_bv_ult(expr->e[0]))
+					{
+						BtorNode *sub_expr = btor_exp_bv_sub(btor, real_child[0]->e[1], one);
+						lin_expr[*lin_count] = btor_exp_bv_ulte(btor, real_child[0]->e[0], sub_expr);
+						(*lin_count)++;
+					}
+			}
+			else
 				return 0;
 			if (kind==0)
 			{
@@ -205,10 +262,9 @@ qe_linear_case(Btor *btor, BtorNode **ulte_expr, int ult_count)
 BtorNode *
 qe_exp_case(Btor *btor, BtorNode *exp_expr)
 {
-	BtorNode *l2_expr[2], *free_expr, *one, *case_expr[3], *res_expr;
+	BtorNode *l2_expr[2], *free_expr, *case_expr[3], *res_expr;
 	BtorNode *coef[3], *l2_coef[3];
 	BtorBitVector *bv = btor_bv_one(btor->mm, bv_size);
-	one = btor_exp_bv_one(btor, 2);
 	uint64_t b, c, N;
 	int left_ulte = 1;
 	for(int j = 0; j < 3; j++)
