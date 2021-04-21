@@ -7,7 +7,7 @@ before_install:
   - pip3 install Cython
   - ./contrib/setup-lingeling.sh
   - ./contrib/setup-btor2tools.sh
-  - sudo apt-get install python3-dev python3-setuptools
+  - sudo apt-get install python3.8-dev python3.8-setuptools
   - ./configure.sh --python
   - cd build
   - make
