@@ -1,7 +1,7 @@
 These tests work with bit vectors of size 4.  
 
 **tests/lin** contains the following examples:  
-* 0.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:15\leq x">  
+* 0.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:15 < x">  
 * 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y">  
 * 2.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:3\cdot y\leq x\wedge x\leq 7\cdot y">  
 * 3.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:y\leq x\wedge 2\leq x\wedge z\leq x">   
