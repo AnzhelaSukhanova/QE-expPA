@@ -1,6 +1,8 @@
 language: python
 python:
-  - "3.5"
+  - "3.8"
+os: linux
+dist: focal 
 before_install:
   - git clone https://github.com/boolector/boolector
   - cd boolector
