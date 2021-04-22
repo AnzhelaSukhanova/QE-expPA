@@ -43,7 +43,7 @@ main(int argc, char *argv[])
 	//3rd step
 	int expr_num = (int)stack_size/4 + 1; //approximately
 	BtorNode *lin_expr[expr_num], *exp_expr[expr_num];
-	int lin_count = 0, exp_count = 0, value_count = 0, i;
+	int lin_count = 0, exp_count = 0, i;
 	int formula_kind = exvar_occurs_kind(btor, lin_expr, &lin_count, exp_expr, &exp_count);
 	if (formula_kind!=0)
 	{

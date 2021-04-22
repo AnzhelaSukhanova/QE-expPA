@@ -2,7 +2,7 @@ BUILD=$(HOME)/boolector/build
 BOOLECTOR=$(HOME)/boolector/src
 DEPS=$(HOME)/boolector/deps
 CPPFLAGS=-I $(BOOLECTOR)
-LDFLAGS=-L $(BUILD)/lib -L $(DEPS)/minisat/build/release/lib -L $(DEPS)/lingeling -L $(DEPS)/btor2tools/build -lboolector -llgl -lminisat -lbtor2parser -lpthread
+LDFLAGS=-L $(BUILD)/lib -L $(DEPS)/minisat/build/release/lib -L $(DEPS)/lingeling -L $(DEPS)/btor2tools/build -lboolector -llgl -lbtor2parser -lpthread
 
 all: main
 
