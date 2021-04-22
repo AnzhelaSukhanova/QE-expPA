@@ -1,6 +1,6 @@
 language: python
 python:
-  - "3.8"
+  - "3.5"
 before_install:
   - git clone https://github.com/boolector/boolector
   - cd boolector
