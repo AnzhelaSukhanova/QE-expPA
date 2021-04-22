@@ -9,12 +9,6 @@ transform_to_required_form()
     return NULL;
 }
 
-void
-put_in_DNF()
-{
-    //TODO
-}
-
 int
 exvar_occurs_kind(Btor *btor, BtorNode **lin_expr, int *lin_count, BtorNode **exp_expr, int *exp_count)
 {
@@ -66,9 +60,9 @@ exvar_occurs_kind(Btor *btor, BtorNode **lin_expr, int *lin_count, BtorNode **ex
 							{
 								BtorNode *sub_expr = btor_exp_bv_sub(btor, real_child[j]->e[1], one);
 								BtorNode *add_expr = btor_exp_bv_add(btor, real_child[j]->e[1], one);
-								lin_expr[*lin_count] = btor_exp_bv_ult(btor, real_child[j]->e[0], add_expr);
+								lin_expr[*lin_count] = btor_node_real_addr(btor_exp_bv_ult(btor, real_child[j]->e[0], add_expr));
 								(*lin_count)++;
-								lin_expr[*lin_count] = btor_exp_bv_ult(btor, sub_expr, real_child[j]->e[0]);
+								lin_expr[*lin_count] = btor_node_real_addr(btor_exp_bv_ult(btor, sub_expr, real_child[j]->e[0]));
 								(*lin_count)++;
 							}
 						}
@@ -80,9 +74,9 @@ exvar_occurs_kind(Btor *btor, BtorNode **lin_expr, int *lin_count, BtorNode **ex
 							if (!same_children(expr->e[j], expr->e[1-j]) || !btor_node_is_bv_eq(expr->e[1-j]))
 							{
 								BtorNode *sub_expr = btor_exp_bv_sub(btor, real_child[j]->e[1], one);
-								exp_expr[*exp_count] = btor_exp_bv_ult(btor, real_child[j]->e[0], sub_expr);
+								exp_expr[*exp_count] = btor_node_real_addr(btor_exp_bv_ult(btor, real_child[j]->e[0], sub_expr));
 								(*exp_count)++;
-								exp_expr[*exp_count] = btor_exp_eq(btor, real_child[j]->e[0], sub_expr);
+								exp_expr[*exp_count] = btor_node_real_addr(btor_exp_eq(btor, real_child[j]->e[0], sub_expr));
 								(*exp_count)++;
 							}
 							else
@@ -103,7 +97,7 @@ exvar_occurs_kind(Btor *btor, BtorNode **lin_expr, int *lin_count, BtorNode **ex
 							else
 							{
 								BtorNode *sub_expr = btor_exp_bv_sub(btor, real_child[j]->e[1], one);
-								lin_expr[*lin_count] = btor_exp_bv_ulte(btor, real_child[j]->e[0], sub_expr);
+								lin_expr[*lin_count] = btor_node_real_addr(btor_exp_bv_ult(btor, real_child[j]->e[0], sub_expr));
 								(*lin_count)++;
 							}
 						}
@@ -260,9 +254,9 @@ qe_linear_case(Btor *btor, BtorNode **ulte_expr, int ult_count)
 }
 
 BtorNode *
-qe_exp_case(Btor *btor, BtorNode *exp_expr)
+qe_exp_case(Btor *btor, BtorNode *exp_expr, BtorNode **lin_expr, int lin_count)
 {
-	BtorNode *l2_expr[2], *free_expr, *case_expr[3], *res_expr;
+	BtorNode *l2_expr[2], *free_expr, *case_expr[3], *res_expr, *subcase;
 	BtorNode *coef[3], *l2_coef[3];
 	BtorBitVector *bv = btor_bv_one(btor->mm, bv_size);
 	uint64_t b, c, N;
@@ -292,13 +286,22 @@ qe_exp_case(Btor *btor, BtorNode *exp_expr)
 	l2_expr[1] = btor_exp_bv_add(btor, l2_expr[0], one);
 	case_expr[0] = replace_exvar(btor, exp_expr, l2_expr[0]);
 	case_expr[1] = replace_exvar(btor, exp_expr, l2_expr[1]);
+	if (lin_count)
+		case_expr[0] = qe_replacement(btor, case_expr[0], l2_expr[0], lin_expr, lin_count);
+	if (lin_count)
+		case_expr[1] = qe_replacement(btor, case_expr[0], l2_expr[0], lin_expr, lin_count);
 	const_expr[0] = btor_exp_bv_zero(btor, 2);
 	case_expr[2] = replace_exvar(btor, exp_expr, const_expr[0]);
+	if (lin_count)
+		case_expr[2] = qe_replacement(btor, case_expr[2], const_expr[0], lin_expr, lin_count);
 	for (int j = 1; j <= N; j++)
 	{
 		bv = btor_bv_uint64_to_bv(btor->mm, j, bv_size);
 		const_expr[j] = btor_exp_bv_const(btor, bv);
-		case_expr[2] = btor_exp_bv_or(btor, case_expr[2], replace_exvar(btor, exp_expr, const_expr[j]));
+		subcase = replace_exvar(btor, exp_expr, const_expr[j]);
+		if (lin_count)
+			subcase = qe_replacement(btor, subcase, const_expr[j], lin_expr, lin_count);
+		case_expr[2] = btor_exp_bv_or(btor, case_expr[2], subcase);
 	}
 	res_expr = case_expr[0];
 	for (int j = 1; j < 3; j++)
@@ -309,4 +312,19 @@ qe_exp_case(Btor *btor, BtorNode *exp_expr)
 		btor_node_release(btor, l2_expr[j]);
 	btor_node_release(btor, free_expr);
 	return res_expr;
+}
+
+BtorNode *
+qe_replacement(Btor *btor, BtorNode *exp_expr, BtorNode *value, BtorNode **lin_expr, int lin_count)
+{
+	BtorNode *and_expr, *eq_expr, *or_expr;
+	for (int j = 0; j < lin_count; j++)
+	{
+		or_expr = replace_exvar(btor, lin_expr[j], value);
+		eq_expr = btor_exp_eq(btor, lin_expr[j]->e[0], lin_expr[j]->e[1]);
+		eq_expr = replace_exvar(btor, eq_expr, value);
+		or_expr = btor_exp_bv_or(btor, or_expr, eq_expr);
+		and_expr = j==0 ? or_expr : btor_exp_bv_and(btor, and_expr, or_expr);
+	}
+	return btor_exp_bv_and(btor, exp_expr, and_expr);
 }

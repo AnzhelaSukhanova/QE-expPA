@@ -38,36 +38,33 @@ main(int argc, char *argv[])
 		return 0;
 	}
 	bv_size = btor_sort_bv_get_width(btor, btor_node_get_sort_id(exists_var));
-	put_in_DNF();
 	//printf_exprs_info(btor);
 
 	//3rd step
-	int ulte_num = (int)stack_size/8 + 1; //approximately
-	BtorNode *lin_expr[ulte_num], *exp_expr[ulte_num];
-	int lin_count = 0, exp_count = 0, i;
+	int expr_num = (int)stack_size/4 + 1; //approximately
+	BtorNode *lin_expr[expr_num], *exp_expr[expr_num];
+	int lin_count = 0, exp_count = 0, value_count = 0, i;
 	int formula_kind = exvar_occurs_kind(btor, lin_expr, &lin_count, exp_expr, &exp_count);
 	if (formula_kind!=0)
 	{
-		BtorNode *res_expr;
+		BtorNode *res_expr, *or_expr;
 		if (formula_kind==2)
 		{
-			BtorNode *or_expr, *ulte_expr1, *ulte_expr2;
+			BtorNode *ulte_expr1, *ulte_expr2;
 			if (exp_count == 1)
-				res_expr = qe_exp_case(btor, exp_expr[0]);
+				res_expr = qe_exp_case(btor, exp_expr[0], lin_expr, lin_count);
 			for (i = 1; i < exp_count; i+=2)
 			{
 				if (exp_expr[i-1] == exp_expr[i])
-					or_expr = qe_exp_case(btor, exp_expr[i]);
+					or_expr = qe_exp_case(btor, exp_expr[i], lin_expr, lin_count);
 				else
 				{
-					ulte_expr1 = qe_exp_case(btor, exp_expr[i]);
-					ulte_expr2 = qe_exp_case(btor, exp_expr[i - 1]);
+					ulte_expr1 = qe_exp_case(btor, exp_expr[i], lin_expr, lin_count);
+					ulte_expr2 = qe_exp_case(btor, exp_expr[i - 1], lin_expr, lin_count);
 					or_expr = btor_exp_bv_or(btor, ulte_expr1, ulte_expr2);
 				}
 				res_expr = i==1 ? or_expr : btor_exp_bv_and(btor, res_expr, or_expr);
 			}
-			if (lin_count)
-				res_expr = btor_exp_bv_or(btor, res_expr, qe_linear_case(btor, lin_expr, lin_count));
 		}
 		else
 		{
