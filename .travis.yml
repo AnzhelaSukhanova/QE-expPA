@@ -17,7 +17,7 @@ before_install:
 install:
   - pip3 install pyboolector
 before_script:
-  - cd ../../
+  - cd ../../build/AnzhelaSukhanova/QE_expPA/src
 script:
   - make
   - sh all_tests.sh
