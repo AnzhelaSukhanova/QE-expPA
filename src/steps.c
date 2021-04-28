@@ -143,110 +143,41 @@ BtorNode *
 qe_linear_case(Btor *btor, BtorNode **ulte_expr, int ult_count)
 {
 	int left_ult_count = 0, right_ult_count = 0; //q and p respectively
-	bool only_exvar_left[ult_count];
-	BtorNode *expr1;
-	int i;
+	int only_exvar_left[ult_count];
+	int only_exvar_right[ult_count];
+	BtorNode *res_expr;
+	int i, j = 0, k = 0;
 	for (i = 0; i < ult_count; i++)
 	{
-		expr1 = ulte_expr[i];
-		only_exvar_left[i] = expr1->e[0]==exists_var;
-		if (only_exvar_left[i])
-			right_ult_count++; //number of expressions where free variables are on the right
-		else
-			left_ult_count++; //number of expressions where free variables are on the left
-	}
-	int left_perm[left_ult_count]; //σ ∈ S_q
-	int right_perm[right_ult_count]; //ρ ∈ S_p
-	int k = 0, j = 0;
-	for (i = 0; i < ult_count; i++)
-	{
-		if (only_exvar_left[i])
+		if (ulte_expr[i]->e[0]==exists_var)
 		{
-			right_perm[j] = i;
+			only_exvar_left[j] = i;
 			j++;
+			left_ult_count++; //number of expressions where free variables are on the right
 		}
 		else
 		{
-			left_perm[k] = i;
+			only_exvar_right[k] = i;
 			k++;
+			right_ult_count++; //number of expressions where free variables are on the left
 		}
 	}
 	int index[2];
-	BtorNode *and_expr, *expr2, *res_expr;
-	i = 1, j = 1;
-	if (ult_count > 1)
+	BtorNode *ulte[left_ult_count*right_ult_count];
+	if (left_ult_count!=0 && right_ult_count!=0)
 	{
-		if (left_ult_count!=0 && right_ult_count!=0)
+		k = 0;
+		for (i = 0; i < left_ult_count; i++)
 		{
-			BtorNode *ulte[ult_count - 1];
-			do
+			index[0] = only_exvar_left[i];
+			for (j = 0; j < right_ult_count; j++)
 			{
-				do
-				{
-					expr1 = ulte_expr[left_perm[0]]->e[0];
-					expr2 = ulte_expr[right_perm[0]]->e[1];
-					ulte[0] = btor_exp_bv_ulte(btor, expr1, expr2);
-					for (k = 1; k < right_ult_count; k++)
-					{
-						index[0] = right_perm[k - 1];
-						index[1] = right_perm[k];
-						ulte[k] = btor_exp_bv_ulte(btor, ulte_expr[index[0]]->e[1], ulte_expr[index[1]]->e[1]);
-					}
-					for (k = left_ult_count - 1; k > 0; k--)
-					{
-						index[0] = left_perm[k];
-						index[1] = left_perm[k - 1];
-						ulte[ult_count - k - 1] = btor_exp_bv_ulte(btor, ulte_expr[index[0]]->e[0],
-																   ulte_expr[index[1]]->e[0]);
-					}
-					and_expr = ult_count==2 ? ulte[0] : btor_exp_bv_and_n(btor, ulte, ult_count - 1);
-					res_expr = i + j==2 ? and_expr : btor_exp_bv_or(btor, res_expr, and_expr);
-					j++;
-				}
-				while (next_permutation(right_perm, right_ult_count));
-				i++;
+				index[1] = only_exvar_right[j];
+				ulte[k] = btor_exp_bv_ulte(btor, ulte_expr[index[1]]->e[0], ulte_expr[index[0]]->e[1]);
+				res_expr = i + j == 0 ? ulte[k] : btor_exp_bv_and(btor, res_expr, ulte[k]);
+				k++;
 			}
-			while (next_permutation(left_perm, left_ult_count));
 		}
-		else if (left_ult_count!=0)
-		{
-			BtorNode *ulte[ult_count];
-			do
-			{
-				expr1 = ulte_expr[left_perm[0]]->e[0];
-				for (k = left_ult_count - 1; k > 0; k--)
-				{
-					index[0] = left_perm[k];
-					index[1] = left_perm[k - 1];
-					ulte[ult_count - k - 1] = btor_exp_bv_ulte(btor, ulte_expr[index[0]]->e[0],
-															   ulte_expr[index[1]]->e[0]);
-				}
-				and_expr = ult_count==2 ? ulte[0] : btor_exp_bv_and_n(btor, ulte, ult_count - 1);
-				res_expr = i==1 ? and_expr : btor_exp_bv_or(btor, res_expr, and_expr);
-				i++;
-			}
-			while (next_permutation(left_perm, left_ult_count));
-		}
-		else if (right_ult_count!=0)
-		{
-			BtorNode *ulte[ult_count];
-			do
-			{
-				expr1 = ulte_expr[right_perm[0]]->e[1];
-				for (k = 1; k < right_ult_count; k++)
-				{
-					index[0] = right_perm[k - 1];
-					index[1] = right_perm[k];
-					ulte[k - 1] = btor_exp_bv_ulte(btor, ulte_expr[index[0]]->e[1], ulte_expr[index[1]]->e[1]);
-				}
-				and_expr = ult_count==2 ? ulte[0] : btor_exp_bv_and_n(btor, ulte, ult_count - 1);
-				res_expr = j==1 ? and_expr : btor_exp_bv_or(btor, res_expr, and_expr);
-				j++;
-			}
-			while (next_permutation(right_perm, right_ult_count));
-		}
-		else
-			BTOR_ABORT(true, "The input formula is incorrect");
 	}
 	else
 		res_expr = btor_exp_true(btor);
