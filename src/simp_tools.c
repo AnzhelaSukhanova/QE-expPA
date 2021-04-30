@@ -1,5 +1,26 @@
 #include "simp_tools.h"
 
+uint64_t
+gcf(uint64_t n1, uint64_t n2)
+{
+	uint64_t div;
+	if (n1 == n2)
+		return n1;
+	int64_t dif = n1 - n2;
+	if (dif < 0) {
+		dif = -dif;
+		div = gcf(n1, dif);
+	} else
+		div = gcf(n2, dif);
+	return div;
+}
+
+uint64_t
+lcm(uint64_t n1, uint64_t n2)
+{
+	return (n1*n2)/gcf(n1, n2);
+}
+
 uint64_t max(uint64_t a, uint64_t b)
 {
 	return (a > b) ? a : b;

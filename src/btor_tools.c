@@ -194,3 +194,15 @@ same_children(BtorNode *expr1, BtorNode *expr2)
 	return ((real_expr1->e[0] == real_expr2->e[0] && real_expr1->e[1] == real_expr2->e[1]) ||
 		    (real_expr1->e[0] == real_expr2->e[1] && real_expr1->e[1] == real_expr2->e[0]));
 }
+
+bool
+is_exvar_exp_term(BtorNode *expr)
+{
+	BtorNode *real_expr = btor_node_real_addr(expr);
+	if (btor_node_is_bv_sll(real_expr) && real_expr->e[1] == exists_var)
+		return true;
+	if (!btor_node_is_bv_const(real_expr) && !btor_node_is_bv_var(real_expr) && !btor_node_is_param(real_expr)
+		&& !btor_node_is_bv_slice(real_expr))
+		return (is_exvar_exp_term(real_expr->e[0]) || is_exvar_exp_term(real_expr->e[1]));
+	return false;
+}

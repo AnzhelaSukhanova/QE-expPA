@@ -1,6 +1,6 @@
 These tests work with bit vectors of size 4.  
 
-**tests/lin** contains the following examples:  
+**simp_lin** contains the following examples:  
 * 0.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:15 < x">  
 * 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y">  
 * 2.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:3\cdot y\leq x\wedge x\leq 7\cdot y">  
@@ -23,19 +23,24 @@ These tests work with bit vectors of size 4.
 * exp9.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq 2\cdot (1\ll y) %2B (1\ll z)\wedge 10\cdot (1\ll y)\leq x">  
 * exp10.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq 5\cdot (1\ll y) %2B 7\wedge 8\cdot ((1\ll y) %2B z)\leq x">  
 
-**tests/exp** contains the following examples:  
+**simp_exp** contains the following examples:  
 * 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:(1\ll x)\leq y">  
 * 2.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:(1\ll x)\leq 11\cdot y %2B 4">  
 * 3.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:(1\ll x)\leq 5\cdot (1\ll y) %2B 7">  
 * 4.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:(1\ll x)\leq (1\ll y) %2B 11\cdot y %2B 4">  
 * 5.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:(1\ll x)\leq y %2B 3\cdot z %2B 8">  
 * 6.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:(1\ll x)\leq 7\cdot y\wedge (1\ll x)\leq z\wedge (1\ll x)\leq (1\ll t)">  
-* 7.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:(1\ll x) %2B 2\leq y %2B 14">  
-* 8.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:11\cdot (1\ll x)\leq y %2B 12">  
-* 9.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:(1\ll x) %2B x\leq (1\ll y) %2B y %2B 1">  
 
-**tests/mix** contains the following examples:  
+**simp_mix** contains the following examples:  
 * 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:(1\ll x)\leq z \wedge x\leq y">  
 * 2.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:(1\ll x)\leq y \wedge (3\cdot (1\ll y)\leq x\wedge x\leq 12\cdot y)">  
 * 3.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:((1\ll x)\leq y %2B 3\cdot z %2B 8) \wedge ((1\ll x)\leq (1\ll y) %2B 11\cdot y %2B 4) \wedge (3\cdot (1\ll y)\leq x\wedge x\leq 12\cdot y)">  
+
+**lin** contains the following examples:  
+* 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:7\cdot x\leq y">  
+
+**exp** contains the following examples:  
+* 1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:(1\ll x) %2B 2\leq y %2B 14">  
+* 2.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:11\cdot (1\ll x)\leq y %2B 12">  
+* 3.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:(1\ll x) %2B x\leq (1\ll y) %2B y %2B 1">  
 

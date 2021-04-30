@@ -49,4 +49,6 @@ BtorBitVector *btor_node_to_bv(BtorNode *expr);
 
 bool same_children(BtorNode *expr1, BtorNode *expr2);
 
+bool is_exvar_exp_term(BtorNode *expr);
+
 #endif //COURSE_BTOR_TOOLS_H

@@ -44,31 +44,50 @@ main(int argc, char *argv[])
 	int expr_num = (int)stack_size/4 + 1; //approximately
 	BtorNode *lin_expr[expr_num], *exp_expr[expr_num];
 	int lin_count = 0, exp_count = 0, i;
-	int formula_kind = exvar_occurs_kind(btor, lin_expr, &lin_count, exp_expr, &exp_count);
-	if (formula_kind!=0)
+	QECaseKind formula_kind = exvar_occurs_kind(btor, lin_expr, &lin_count, exp_expr, &exp_count);
+	if (formula_kind != INCORRECT)
 	{
 		BtorNode *res_expr, *or_expr;
-		if (formula_kind==2)
+		if (formula_kind==SIMP_EXP)
 		{
 			BtorNode *ulte_expr1, *ulte_expr2;
 			if (exp_count == 1)
-				res_expr = qe_exp_case(btor, exp_expr[0], lin_expr, lin_count);
+				res_expr = qe_simp_exp_case(btor, exp_expr[0], lin_expr, lin_count);
 			for (i = 1; i < exp_count; i+=2)
 			{
 				if (exp_expr[i-1] == exp_expr[i])
-					or_expr = qe_exp_case(btor, exp_expr[i], lin_expr, lin_count);
+					or_expr = qe_simp_exp_case(btor, exp_expr[i], lin_expr, lin_count);
 				else
 				{
-					ulte_expr1 = qe_exp_case(btor, exp_expr[i], lin_expr, lin_count);
-					ulte_expr2 = qe_exp_case(btor, exp_expr[i - 1], lin_expr, lin_count);
+					ulte_expr1 = qe_simp_exp_case(btor, exp_expr[i], lin_expr, lin_count);
+					ulte_expr2 = qe_simp_exp_case(btor, exp_expr[i - 1], lin_expr, lin_count);
 					or_expr = btor_exp_bv_or(btor, ulte_expr1, ulte_expr2);
 				}
 				res_expr = i==1 ? or_expr : btor_exp_bv_and(btor, res_expr, or_expr);
 			}
 		}
+		else if (formula_kind==SIMP_LIN)
+		{
+			res_expr = qe_simp_linear_case(btor, lin_expr, lin_count);
+		}
+		else if (formula_kind==LINEAR)
+		{
+			uint64_t LCM = 1;
+			BtorNode *mul, *coef;
+			BtorBitVector *bv_coef;
+			for(i = 0; i < lin_count; i++)
+			{
+				 mul = without_this_var(btor, lin_expr[i]->e[0], exists_var)? lin_expr[i]->e[1] : lin_expr[i]->e[0];
+				 coef = btor_node_is_bv_const(mul->e[0])? btor_node_copy(btor, mul->e[0]) : btor_node_copy(btor, mul->e[1]);
+				 bv_coef = btor_node_to_bv(coef);
+				 LCM = lcm(LCM, btor_bv_to_uint64(bv_coef));
+			}
+
+			res_expr = qe_linear_case(btor, lin_expr, lin_count);
+		}
 		else
 		{
-			res_expr = qe_linear_case(btor, lin_expr, lin_count);
+			res_expr = qe_exp_case(btor, exp_expr[0], lin_expr, lin_count);
 		}
 		btor_dumpsmt_dump_node(btor, fd_out, res_expr, -1);
 		fprintf(fd_out, "\n");
