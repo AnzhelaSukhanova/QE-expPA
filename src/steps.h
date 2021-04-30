@@ -30,7 +30,7 @@ QECaseKind exvar_occurs_kind(Btor *btor, BtorNode **lin_expr, int *lin_count, Bt
 //eliminates quantifiers if bound variable occurs trivially in every inequation occurring in the formula
 BtorNode *qe_simp_linear_case(Btor *btor, BtorNode **ulte_expr, int ult_count);
 
-//eliminates quantifiers in an inequation where bound variable occurs in a trivial exponential term
+//eliminates quantifiers in an inequation where bound variable occurs trivially in an exponential term
 BtorNode *qe_simp_exp_case(Btor *btor, BtorNode *exp_expr, BtorNode **lin_expr, int lin_count);
 
 //eliminates quantifiers in a linear terms for the exponential case
@@ -39,7 +39,7 @@ BtorNode *qe_replacement(Btor *btor, BtorNode *exp_expr, BtorNode *value, BtorNo
 //eliminates quantifiers if bound variable occurs linearly in every inequation occurring in the formula
 BtorNode *qe_linear_case(Btor *btor, BtorNode **ulte_expr, int ult_count);
 
-//eliminates quantifiers in an inequation where bound variable occurs in non trivially an exponential term
+//eliminates quantifiers in an inequation where bound variable occurs non trivially in an exponential term
 BtorNode *qe_exp_case(Btor *btor, BtorNode *exp_expr, BtorNode **lin_expr, int lin_count);
 
 
