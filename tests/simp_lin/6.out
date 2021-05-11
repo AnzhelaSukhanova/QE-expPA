@@ -1,1 +1,1 @@
-(and (not (bvult t z)) (not (bvult (bvmul y #b0011) z)))
+(and (not (bvult (bvmul y #b0011) z)) (not (bvult t z)))

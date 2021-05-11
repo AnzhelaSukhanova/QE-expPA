@@ -1,1 +1,1 @@
-false
+(let (($e1 (bvadd y #b1100))) (let (($e2 (= y #b0100))) (let (($e3 (ite (bvult $e1 #b1000) (ite (bvult $e1 #b0100) (ite (bvult $e1 #b0010) (ite $e2 #b1111 #b0000) #b0001) #b0010) #b0011))) (let (($e4 (bvult #b1011 $e1))) (let (($e5 (bvult #b0110 $e1))) (let (($e6 (bvult #b1100 $e1))) (let (($e7 (bvult #b1000 $e1))) (not (and (not $e5) (not $e4) (not $e6) (not $e7) $e2 (not $e4) (not $e5) (not $e6) (not $e7) $e2 (not $e4) (not (bvult (bvshl #b1011 (bvadd #b1110 $e3)) $e1)) (not (bvult (bvshl #b1011 (bvadd #b1101 $e3)) $e1)) (not $e5))))))))))

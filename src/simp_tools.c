@@ -30,3 +30,15 @@ uint64_t max3(uint64_t a, uint64_t b, uint64_t c)
 {
 	return max(max(a, b), c);
 }
+
+int
+l2(uint64_t n)
+{
+	int power = 0, val = 1;
+	while (val*2 < n)
+	{
+		power += 1;
+		val *= 2;
+	}
+	return power;
+}

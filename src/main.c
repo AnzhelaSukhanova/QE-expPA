@@ -2,103 +2,128 @@
 #include "steps.h"
 
 extern "C" {
-#include "boolector.h"
+#include "btorparse.h"
 };
 
 size_t stack_size;
 BtorNode *exists_var;
 int bv_size;
+BtorNode *True;
+BtorNode *False;
 
 int
 main(int argc, char *argv[])
 {
 	assert(argc > 1);
-	Btor *btor = boolector_new();
+	Btor *btor = btor_new();
 	char *error_msg;
 	int status;
 	FILE *fd_in = fopen(argv[1], "r");
 	FILE *fd_out = fopen(argv[2], "w");
-	boolector_parse_smt2(btor, fd_in, argv[1], fd_out, &error_msg, &status);
+	btor_parse_smt2(btor, fd_in, argv[1], fd_out, &error_msg, &status);
 	fclose(fd_in);
 	BTOR_ABORT(status, error_msg);
+	True = btor_exp_true(btor);
+	False = btor_exp_false(btor);
 
-	BtorNode **new_vars = transform_to_required_form(); //vector x
 	stack_size = get_stack_size(btor);
-
-	exists_var = get_exists_var(btor); //x_0
-	if (exists_var == NULL)
+	BtorNode *formula, *res_expr, *input;
+	if (btor->quantifiers->count > 0)
 	{
-		if (btor->inconsistent)
-			btor_dumpsmt_dump_node(btor, fd_out, btor_exp_false(btor), -1);
-		else
-			btor_dumpsmt_dump_node(btor, fd_out, btor_exp_true(btor), -1);
-		fprintf(fd_out, "\n");
-		boolector_delete(btor);
-		fclose(fd_out);
-		return 0;
-	}
-	bv_size = btor_sort_bv_get_width(btor, btor_node_get_sort_id(exists_var));
-	//printf_exprs_info(btor);
-
-	//3rd step
-	int expr_num = (int)stack_size/4 + 1; //approximately
-	BtorNode *lin_expr[expr_num], *exp_expr[expr_num];
-	int lin_count = 0, exp_count = 0, i;
-	QECaseKind formula_kind = exvar_occurs_kind(btor, lin_expr, &lin_count, exp_expr, &exp_count);
-	if (formula_kind != INCORRECT)
-	{
-		BtorNode *res_expr, *or_expr;
-		if (formula_kind==SIMP_EXP)
-		{
-			BtorNode *ulte_expr1, *ulte_expr2;
-			if (exp_count == 1)
-				res_expr = qe_simp_exp_case(btor, exp_expr[0], lin_expr, lin_count);
-			for (i = 1; i < exp_count; i+=2)
-			{
-				if (exp_expr[i-1] == exp_expr[i])
-					or_expr = qe_simp_exp_case(btor, exp_expr[i], lin_expr, lin_count);
-				else
-				{
-					ulte_expr1 = qe_simp_exp_case(btor, exp_expr[i], lin_expr, lin_count);
-					ulte_expr2 = qe_simp_exp_case(btor, exp_expr[i - 1], lin_expr, lin_count);
-					or_expr = btor_exp_bv_or(btor, ulte_expr1, ulte_expr2);
-				}
-				res_expr = i==1 ? or_expr : btor_exp_bv_and(btor, res_expr, or_expr);
-			}
-		}
-		else if (formula_kind==SIMP_LIN)
-		{
-			res_expr = qe_simp_linear_case(btor, lin_expr, lin_count);
-		}
-		else if (formula_kind==LINEAR)
-		{
-			uint64_t LCM = 1;
-			BtorNode *mul, *coef;
-			BtorBitVector *bv_coef;
-			for(i = 0; i < lin_count; i++)
-			{
-				 mul = without_this_var(btor, lin_expr[i]->e[0], exists_var)? lin_expr[i]->e[1] : lin_expr[i]->e[0];
-				 coef = btor_node_is_bv_const(mul->e[0])? btor_node_copy(btor, mul->e[0]) : btor_node_copy(btor, mul->e[1]);
-				 bv_coef = btor_node_to_bv(coef);
-				 LCM = lcm(LCM, btor_bv_to_uint64(bv_coef));
-			}
-
-			res_expr = qe_linear_case(btor, lin_expr, lin_count);
-		}
-		else
-		{
-			res_expr = qe_exp_case(btor, exp_expr[0], lin_expr, lin_count);
-		}
-		btor_dumpsmt_dump_node(btor, fd_out, res_expr, -1);
-		fprintf(fd_out, "\n");
-		btor_node_release(btor, res_expr);
-		if (lin_count)
-			for (i = 0; i < lin_count; i++)
-				btor_node_release(btor, lin_expr[i]);
+		input = (BtorNode *)btor->quantifiers->last->key;
+		transform_to_required_form(btor, input);
+		formula = (BtorNode *)btor->quantifiers->last->key;
+		/*btor_dumpsmt_dump_node(btor, stdout, formula, -1);
+		fprintf(stdout, "\n");*/
+		exists_var = get_first_exists_var(btor);
 	}
 	else
-		BTOR_ABORT(true, "The formula did not transformed to the required form");
-	boolector_delete(btor);
+	{
+		if (btor->inconsistent)
+			res_expr = False;
+		else
+			res_expr = True;
+	}
+	while(btor->exists_vars->count != 0)
+	{
+		bv_size = btor_sort_bv_get_width(btor, btor_node_get_sort_id(exists_var));
+		//printf_exprs_info(btor);
+		uint expr_num = (int)stack_size/4 + 1; //approximately
+		BtorNodeArray *lin = btornodearr_new(expr_num);
+		BtorNodeArray *exp = btornodearr_new(expr_num);
+		BtorNodeArray *free = btornodearr_new(expr_num);
+		bool is_inverted = btor_hashptr_table_get(btor->forall_vars, exists_var) !=NULL || btor_node_is_inverted(formula);
+		QECaseKind formula_kind = exvar_occurs_kind(btor, formula, lin, exp, free, 0);
+		if (formula_kind!=INCORRECT)
+		{
+			res_expr = NULL;
+			BtorNode *expr;
+			if (formula_kind==SIMP_EXP)
+			{
+				BtorNode *ulte_expr1, *ulte_expr2;
+				if (exp->count==1)
+					res_expr = qe_exp_case(btor, exp->expr[0], lin);
+				for (int i = 1; i < exp->count; i += 2)
+				{
+					if (!same_children(exp->expr[i - 1], exp->expr[i]))
+					{
+						i--;
+						expr = qe_exp_case(btor, exp->expr[i], lin);
+					}
+					else
+					{
+						ulte_expr1 = qe_exp_case(btor, exp->expr[i], lin);
+						ulte_expr2 = qe_exp_case(btor, exp->expr[i - 1], lin);
+						expr = btor_exp_bv_or(btor, ulte_expr1, ulte_expr2);
+					}
+					res_expr = res_expr==NULL ? expr : btor_exp_bv_and(btor, res_expr, expr);
+				}
+			}
+			else if (formula_kind==SIMP_LIN)
+			{
+				res_expr = qe_linear_case(btor, lin, 1, 0);
+			}
+			else if (formula_kind==LINEAR)
+			{
+				uint64_t LCM = find_LCM(btor, lin);
+				int old_bv_size = bv_size;
+				bv_size = (l2(LCM) + 1) + bv_size;
+				for (int i = 0; i < lin->count; i++)
+				{
+					lin->expr[i] = resize_expr(btor, lin->expr[i], old_bv_size);
+					lin->expr[i] = get_rem_for_resize(btor, lin->expr[i], old_bv_size);
+				}
+				res_expr = qe_linear_case(btor, lin, LCM, old_bv_size);
+			}
+			else
+			{
+				res_expr = qe_exp_case(btor, exp->expr[0], lin);
+			}
+			for (int i = 0; i < free->count; i++)
+			{
+				if (is_inverted)
+					res_expr = res_expr == NULL? free->expr[i] : btor_exp_bv_or(btor, res_expr, free->expr[i]);
+				else
+					res_expr = res_expr == NULL? free->expr[i] : btor_exp_bv_and(btor, res_expr, free->expr[i]);
+			}
+			if (is_inverted)
+				res_expr = btor_node_invert(res_expr);
+			btor_hashptr_table_forget_first(btor->exists_vars);
+			exists_var = get_first_exists_var(btor);
+			if (exists_var != NULL)
+				formula = btor_exp_exists(btor, exists_var, res_expr);
+			stack_size = get_stack_size(btor);
+			if (lin->count)
+				for (int i = 0; i < lin->count; i++)
+					btor_node_release(btor, lin->expr[i]);
+		}
+		else
+			BTOR_ABORT(true, "The formula did not transformed to the required form");
+	}
+	btor_dumpsmt_dump_node(btor, fd_out, res_expr, -1);
+	fprintf(fd_out, "\n");
+	btor_node_release(btor, res_expr);
+	btor_delete(btor);
 	fclose(fd_out);
 	return 0;
 }
