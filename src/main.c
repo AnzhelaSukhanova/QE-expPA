@@ -33,8 +33,6 @@ main(int argc, char *argv[])
 		input = (BtorNode *)btor->quantifiers->last->key;
 		transform_to_required_form(btor, input);
 		formula = (BtorNode *)btor->quantifiers->last->key;
-		/*btor_dumpsmt_dump_node(btor, stdout, formula, -1);
-		fprintf(stdout, "\n");*/
 		exists_var = get_first_exists_var(btor);
 	}
 	else
@@ -51,9 +49,9 @@ main(int argc, char *argv[])
 		uint expr_num = (int)stack_size/4 + 1; //approximately
 		BtorNodeArray *lin = btornodearr_new(expr_num);
 		BtorNodeArray *exp = btornodearr_new(expr_num);
-		BtorNodeArray *free = btornodearr_new(expr_num);
+		BtorNodeArray *free_vars = btornodearr_new(expr_num);
 		bool is_inverted = btor_hashptr_table_get(btor->forall_vars, exists_var) !=NULL || btor_node_is_inverted(formula);
-		QECaseKind formula_kind = exvar_occurs_kind(btor, formula, lin, exp, free, 0);
+		QECaseKind formula_kind = exvar_occurs_kind(btor, formula, lin, exp, free_vars, 0);
 		if (formula_kind!=INCORRECT)
 		{
 			res_expr = NULL;
@@ -91,7 +89,11 @@ main(int argc, char *argv[])
 				for (int i = 0; i < lin->count; i++)
 				{
 					lin->expr[i] = resize_expr(btor, lin->expr[i], old_bv_size);
-					lin->expr[i] = get_rem_for_resize(btor, lin->expr[i], old_bv_size);
+					/*btor_dumpsmt_dump_node(btor, stdout, lin->expr[i], -1);
+					fprintf(stdout, "\n\n");*/
+					lin->expr[i] = get_rem(btor, lin->expr[i], old_bv_size);
+					/*btor_dumpsmt_dump_node(btor, stdout, lin->expr[i], -1);
+					fprintf(stdout, "\n\n");*/
 				}
 				res_expr = qe_linear_case(btor, lin, LCM, old_bv_size);
 			}
@@ -99,12 +101,12 @@ main(int argc, char *argv[])
 			{
 				res_expr = qe_exp_case(btor, exp->expr[0], lin);
 			}
-			for (int i = 0; i < free->count; i++)
+			for (int i = 0; i < free_vars->count; i++)
 			{
 				if (is_inverted)
-					res_expr = res_expr == NULL? free->expr[i] : btor_exp_bv_or(btor, res_expr, free->expr[i]);
+					res_expr = res_expr == NULL? free_vars->expr[i] : btor_exp_bv_or(btor, res_expr, free_vars->expr[i]);
 				else
-					res_expr = res_expr == NULL? free->expr[i] : btor_exp_bv_and(btor, res_expr, free->expr[i]);
+					res_expr = res_expr == NULL? free_vars->expr[i] : btor_exp_bv_and(btor, res_expr, free_vars->expr[i]);
 			}
 			if (is_inverted)
 				res_expr = btor_node_invert(res_expr);

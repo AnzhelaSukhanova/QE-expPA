@@ -24,10 +24,12 @@ enum QECaseKind
 
 typedef enum QECaseKind QECaseKind;
 
+QECaseKind max(QECaseKind a, QECaseKind b);
+
 //1st step: transform the formula into a disjunction of conjunction of inequations between terms of the specific forms
 void transform_to_required_form(Btor *btor, BtorNode *formula);
 
-QECaseKind exvar_occurs_kind(Btor *btor, BtorNode *formula, BtorNodeArray *lin, BtorNodeArray *exp, BtorNodeArray *free, int inv_depth);
+QECaseKind exvar_occurs_kind(Btor *btor, BtorNode *formula, BtorNodeArray *lin, BtorNodeArray *exp, BtorNodeArray *free_vars, int inv_depth);
 
 //eliminates quantifiers if bound variable occurs linearly in every inequation occurring in the formula
 BtorNode *qe_linear_case(Btor *btor, BtorNodeArray *ult, uint64_t LCM, int old_bv_size);

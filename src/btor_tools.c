@@ -293,22 +293,56 @@ int_sub(Btor *btor, BtorNode *expr1, BtorNode *expr2)
 }
 
 BtorNode *
-get_rem_for_resize(Btor *btor, BtorNode *expr, int old_bv_size)
+get_rem(Btor *btor, BtorNode *expr, int old_bv_size)
 {
 	if (!expr || expr == True || expr == False) return expr;
 	BtorNode *real_expr = btor_node_real_addr(expr), *res;
 	if (!btor_node_is_bv_const(real_expr) && !btor_node_is_bv_var(real_expr) && !btor_node_is_param(real_expr))
 	{
 		uint64_t max = pow(2, old_bv_size);
-		BtorNode *e[3];
-		e[0] = get_rem_for_resize(btor, real_expr->e[0], old_bv_size);
-		e[1] = get_rem_for_resize(btor, real_expr->e[1], old_bv_size);
-		e[2] = get_rem_for_resize(btor, real_expr->e[1], old_bv_size);
-		res = btor_exp_create(btor, real_expr->kind, e, real_expr->arity);
+		BtorNode *e[3], *cond, *case_if, *case_else;
+		BtorNode *max_expr = uint64_to_btornode(btor, max, bv_size);
+		if (btor_node_is_bv_add(real_expr))
+		{
+			cond = btor_exp_bv_urem(btor, real_expr->e[0], max_expr);
+			cond = btor_exp_bv_add(btor, cond, btor_exp_bv_urem(btor, real_expr->e[0], max_expr));
+			cond = btor_exp_bv_ult(btor, cond, max_expr);
+			case_if = get_rem(btor, real_expr->e[0], old_bv_size);
+			case_if = btor_exp_bv_add(btor, case_if, get_rem(btor, real_expr->e[1], old_bv_size));
+			case_else = btor_exp_bv_sub(btor, case_if, max_expr);
+			res = btor_exp_cond(btor, cond, case_if, case_else);
+		}
+		else if (btor_node_is_bv_sll(expr))
+		{
+			cond = btor_exp_bv_ult(btor, real_expr->e[0], uint64_to_btornode(btor, old_bv_size, bv_size));
+			case_else = btor_exp_bv_zero(btor, BTOR_BV_SORT);
+			res = btor_exp_cond(btor, cond, expr, case_else);
+		}
+		else if (btor_node_is_bv_mul(expr))
+		{
+			case_else = get_rem(btor, real_expr->e[0], old_bv_size);
+			case_else = btor_exp_bv_mul(btor, case_else, get_rem(btor, real_expr->e[1], old_bv_size));
+			res = case_else;
+			for (int i = 1; i < old_bv_size - 1; i++)
+			{
+				cond = btor_exp_bv_urem(btor, real_expr->e[0], max_expr);
+				cond = btor_exp_bv_mul(btor, cond, btor_exp_bv_urem(btor, real_expr->e[0], max_expr));
+				cond = btor_exp_bv_ult(btor, max_expr, cond);
+				case_if = btor_exp_bv_sub(btor, case_else, max_expr);
+				res = btor_exp_cond(btor, cond, case_if, res);
+				max = max*2;
+				max_expr = uint64_to_btornode(btor, max, bv_size);
+			}
+		}
+		else
+		{
+			e[0] = get_rem(btor, real_expr->e[0], old_bv_size);
+			e[1] = get_rem(btor, real_expr->e[1], old_bv_size);
+			e[2] = get_rem(btor, real_expr->e[1], old_bv_size);
+			res = btor_exp_create(btor, real_expr->kind, e, real_expr->arity);
+		}
 		if (btor_node_is_inverted(expr))
 			res = btor_exp_bv_not(btor, res);
-		if (btor_node_is_bv_sll(real_expr) || btor_node_is_bv_mul(real_expr) || btor_node_is_bv_add(real_expr))
-			res = btor_exp_bv_urem(btor, expr, uint64_to_btornode(btor, max, bv_size));
 	}
 	else res = expr;
 	return res;

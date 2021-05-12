@@ -74,7 +74,7 @@ BtorNode *resize_expr(Btor *btor, BtorNode *expr, int old_bv_size);
 
 BtorNode *int_sub(Btor *btor, BtorNode *expr1, BtorNode *expr2);
 
-BtorNode *get_rem_for_resize(Btor *btor, BtorNode *expr, int old_bv_size);
+BtorNode *get_rem(Btor *btor, BtorNode *expr, int old_bv_size);
 
 uint64_t find_LCM(Btor *btor, BtorNodeArray *lin);
 
