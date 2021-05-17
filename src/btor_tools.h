@@ -17,7 +17,7 @@ extern size_t stack_size;
 extern BtorNode *exists_var;
 extern int bv_size;
 extern BtorNode *one;
-extern BtorNode *True;
+extern BtorNode *zero;
 extern BtorNode *False;
 
 struct BtorNodeArray
@@ -74,9 +74,9 @@ BtorNode *resize_expr(Btor *btor, BtorNode *expr, int old_bv_size);
 
 BtorNode *int_sub(Btor *btor, BtorNode *expr1, BtorNode *expr2);
 
-BtorNode *get_rem(Btor *btor, BtorNode *expr, int old_bv_size);
+BtorNode *get_rem(Btor *btor, BtorNode *expr, int old_bv_size, int max_power);
 
-uint64_t find_LCM(Btor *btor, BtorNodeArray *lin);
+uint64_t find_LCM(Btor *btor, BtorNodeArray *lin, uint64_t *coef);
 
 void btor_hashptr_table_forget_first(BtorPtrHashTable *table);
 

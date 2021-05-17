@@ -10,7 +10,6 @@ extern "C" {
 extern size_t stack_size;
 extern BtorNode *exists_var;
 extern int bv_size;
-extern BtorNode *True;
 extern BtorNode *False;
 
 enum QECaseKind

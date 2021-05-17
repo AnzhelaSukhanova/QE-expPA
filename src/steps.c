@@ -1,6 +1,7 @@
 #include "steps.h"
 
-BtorNode *one;
+BtorNode *one = NULL;
+BtorNode *zero = NULL;
 
 QECaseKind max(QECaseKind a, QECaseKind b)
 {
@@ -35,7 +36,11 @@ transform_to_required_form(Btor *btor, BtorNode *formula)
 QECaseKind
 exvar_occurs_kind(Btor *btor, BtorNode *formula, BtorNodeArray *lin, BtorNodeArray *exp, BtorNodeArray *free_vars, int inv_depth)
 {
-	one = btor_exp_bv_one(btor, BTOR_BV_SORT);
+	if (one == NULL)
+	{
+		one = btor_exp_bv_one(btor, BTOR_BV_SORT);
+		zero = btor_exp_bv_zero(btor, BTOR_BV_SORT);
+	}
 	QECaseKind kind = SIMP_LIN;
 	if (btor_node_is_inverted(formula)) inv_depth++;
 	BtorNode *expr = btor_node_real_addr(formula);
@@ -107,7 +112,7 @@ exvar_occurs_kind(Btor *btor, BtorNode *formula, BtorNodeArray *lin, BtorNodeArr
 					same_children(expr->e[j], expr->e[1 - j]))
 				{
 					if (btor_node_is_bv_eq(expr->e[j]))
-						expr->e[j] = True;
+						expr->e[j] = btor->true_exp;
 					if (btor_node_is_bv_ult(expr->e[j]))
 					{
 						real_child[j] = btor_node_real_addr(expr->e[j]);
@@ -232,14 +237,23 @@ qe_linear_case(Btor *btor, BtorNodeArray *ult, uint64_t LCM, int old_bv_size)
 		if (with_this_var(btor, ult->expr[i]->e[0], exists_var))
 		{
 			only_exvar_left[j] = i;
-			j++;
 			left_ult_count++; //number of expressions where free variables are on the right
+			if (LCM != 1)
+			{
+				uint64_t max = pow(2, bv_size - 1);
+				BtorNode *max_expr = uint64_to_btornode(btor, max, bv_size);
+				ult->expr[j]->e[1] = get_rem(btor, ult->expr[j]->e[1], old_bv_size, LCM);
+				ult->expr[j]->e[1] = btor_exp_bv_add(btor, ult->expr[j]->e[1], max_expr);
+			}
+			j++;
 		}
 		else
 		{
 			only_exvar_right[k] = i;
-			k++;
 			right_ult_count++; //number of expressions where free variables are on the left
+			if (LCM != 1)
+				ult->expr[k]->e[1] = get_rem(btor, ult->expr[k]->e[1], old_bv_size, LCM);
+			k++;
 		}
 	}
 	BtorNode *res_expr = NULL;
@@ -261,9 +275,14 @@ qe_linear_case(Btor *btor, BtorNodeArray *ult, uint64_t LCM, int old_bv_size)
 		}
 	}
 	else
-		res_expr = True;
+		res_expr = btor->true_exp;
 	if (LCM != 1)
 	{
+		BtorNode *expr1, *expr2, *dif, *or_expr, *mod_expr, *mod;
+		BtorNode *and_expr = NULL;
+		BtorNode *const_expr[LCM + 1], *eq_expr[LCM];
+		for (i = 0; i <= LCM; i++)
+			const_expr[i] = uint64_to_btornode(btor, i, bv_size);
 		if (right_ult_count!=0 && left_ult_count!=0)
 		{
 			for (i = 0; i < left_ult_count; i++)
@@ -272,17 +291,25 @@ qe_linear_case(Btor *btor, BtorNodeArray *ult, uint64_t LCM, int old_bv_size)
 				for (j = 0; j < right_ult_count; j++)
 				{
 					index[1] = only_exvar_right[j];
-
+					expr1 = ult->expr[index[0]];
+					expr2 = ult->expr[index[1]];
+					dif = btor_exp_bv_sub(btor, expr1, expr2);
+					or_expr = btor_exp_bv_ulte(btor, dif, const_expr[LCM]);
+					mod = btor_exp_bv_urem(btor, expr2, const_expr[LCM]);
+					for (k = 0; k < LCM; k++)
+					{
+						eq_expr[k] = btor_exp_eq(btor, dif, const_expr[k]);
+						if (k == 0)
+							mod_expr = btor_exp_eq(btor, mod, const_expr[0]);
+						else
+							mod_expr = btor_exp_bv_or(btor, mod_expr, btor_exp_eq(btor, mod, const_expr[LCM - k]));
+						eq_expr[k] = btor_exp_bv_and(btor, eq_expr[k], mod_expr);
+						or_expr = btor_exp_bv_or(btor, or_expr, eq_expr[k]);
+					}
+					and_expr = and_expr == NULL? or_expr : btor_exp_bv_or(btor, and_expr, or_expr);
 				}
 			}
-		}
-		else if (left_ult_count!=0)
-		{
-
-		}
-		else if (right_ult_count!=0)
-		{
-
+			res_expr = btor_exp_bv_and(btor, res_expr, and_expr);
 		}
 	}
 	return res_expr;
@@ -296,7 +323,7 @@ qe_exp_case(Btor *btor, BtorNode *exp_expr, BtorNodeArray *lin)
 	uint64_t b, c, N;
 	bool left_ulte = true;
 	for (int j = 0; j < 3; j++)
-		coef[j] = btor_exp_bv_zero(btor, BTOR_BV_SORT);
+		coef[j] = zero;
 	if (with_this_var(btor, exp_expr->e[0], exists_var))
 	{
 		free_expr = btor_node_copy(btor, exp_expr->e[1]);
@@ -325,7 +352,7 @@ qe_exp_case(Btor *btor, BtorNode *exp_expr, BtorNodeArray *lin)
 		if (lin->count)
 			case_expr[1] = qe_replacement(btor, case_expr[0], l2_expr[0], lin);
 	}
-	const_expr[0] = btor_exp_bv_zero(btor, BTOR_BV_SORT);
+	const_expr[0] = zero;
 	case_expr[2] = replace_exvar(btor, exp_expr, const_expr[0]);
 	if (lin->count)
 		case_expr[2] = qe_replacement(btor, case_expr[2], const_expr[0], lin);

@@ -8,7 +8,6 @@ extern "C" {
 size_t stack_size;
 BtorNode *exists_var;
 int bv_size;
-BtorNode *True;
 BtorNode *False;
 
 int
@@ -23,11 +22,12 @@ main(int argc, char *argv[])
 	btor_parse_smt2(btor, fd_in, argv[1], fd_out, &error_msg, &status);
 	fclose(fd_in);
 	BTOR_ABORT(status, error_msg);
-	True = btor_exp_true(btor);
 	False = btor_exp_false(btor);
 
 	stack_size = get_stack_size(btor);
 	BtorNode *formula, *res_expr, *input;
+	/*btor_dumpsmt_dump_node(btor, stdout, BTOR_PEEK_STACK(btor->nodes_id_table, stack_size - 1), -1);
+	fprintf(stdout, "\n");*/
 	if (btor->quantifiers->count > 0)
 	{
 		input = (BtorNode *)btor->quantifiers->last->key;
@@ -40,7 +40,7 @@ main(int argc, char *argv[])
 		if (btor->inconsistent)
 			res_expr = False;
 		else
-			res_expr = True;
+			res_expr = btor->true_exp;
 	}
 	while(btor->exists_vars->count != 0)
 	{
@@ -50,7 +50,7 @@ main(int argc, char *argv[])
 		BtorNodeArray *lin = btornodearr_new(expr_num);
 		BtorNodeArray *exp = btornodearr_new(expr_num);
 		BtorNodeArray *free_vars = btornodearr_new(expr_num);
-		bool is_inverted = btor_hashptr_table_get(btor->forall_vars, exists_var) !=NULL || btor_node_is_inverted(formula);
+		bool is_inverted = btor_hashptr_table_get(btor->forall_vars, exists_var) != NULL || btor_node_is_inverted(formula);
 		QECaseKind formula_kind = exvar_occurs_kind(btor, formula, lin, exp, free_vars, 0);
 		if (formula_kind!=INCORRECT)
 		{
@@ -83,15 +83,19 @@ main(int argc, char *argv[])
 			}
 			else if (formula_kind==LINEAR)
 			{
-				uint64_t LCM = find_LCM(btor, lin);
+				uint64_t coef[lin->count];
+				uint64_t LCM = find_LCM(btor, lin, coef);
 				int old_bv_size = bv_size;
 				bv_size = (l2(LCM) + 1) + bv_size;
 				for (int i = 0; i < lin->count; i++)
 				{
 					lin->expr[i] = resize_expr(btor, lin->expr[i], old_bv_size);
-					/*btor_dumpsmt_dump_node(btor, stdout, lin->expr[i], -1);
-					fprintf(stdout, "\n\n");*/
-					lin->expr[i] = get_rem(btor, lin->expr[i], old_bv_size);
+					if (coef[i] != LCM)
+					{
+						BtorNode* coef_expr = uint64_to_btornode(btor, LCM/coef[i], bv_size);
+						int j = without_this_var(btor, lin->expr[i]->e[0], exists_var)? 0 : 1;
+						lin->expr[i]->e[j] = btor_exp_bv_mul(btor, lin->expr[i]->e[j], coef_expr);
+					}
 					/*btor_dumpsmt_dump_node(btor, stdout, lin->expr[i], -1);
 					fprintf(stdout, "\n\n");*/
 				}
@@ -115,9 +119,6 @@ main(int argc, char *argv[])
 			if (exists_var != NULL)
 				formula = btor_exp_exists(btor, exists_var, res_expr);
 			stack_size = get_stack_size(btor);
-			if (lin->count)
-				for (int i = 0; i < lin->count; i++)
-					btor_node_release(btor, lin->expr[i]);
 		}
 		else
 			BTOR_ABORT(true, "The formula did not transformed to the required form");

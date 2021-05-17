@@ -1,1 +1,1 @@
-(and (bvult (bvmul (concat #b000 x!0) #b0000111) (bvadd (concat #b000 y) #b0001111)) (not (= y #b0000)))
+(not (= y #b0000))
