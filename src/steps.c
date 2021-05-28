@@ -238,21 +238,12 @@ qe_linear_case(Btor *btor, BtorNodeArray *ult, uint64_t LCM, int old_bv_size)
 		{
 			only_exvar_left[j] = i;
 			left_ult_count++; //number of expressions where free variables are on the right
-			if (LCM != 1)
-			{
-				uint64_t max = pow(2, bv_size - 1);
-				BtorNode *max_expr = uint64_to_btornode(btor, max, bv_size);
-				ult->expr[j]->e[1] = get_rem(btor, ult->expr[j]->e[1], old_bv_size, LCM);
-				ult->expr[j]->e[1] = btor_exp_bv_add(btor, ult->expr[j]->e[1], max_expr);
-			}
 			j++;
 		}
 		else
 		{
 			only_exvar_right[k] = i;
 			right_ult_count++; //number of expressions where free variables are on the left
-			if (LCM != 1)
-				ult->expr[k]->e[1] = get_rem(btor, ult->expr[k]->e[1], old_bv_size, LCM);
 			k++;
 		}
 	}
@@ -278,6 +269,7 @@ qe_linear_case(Btor *btor, BtorNodeArray *ult, uint64_t LCM, int old_bv_size)
 		res_expr = btor->true_exp;
 	if (LCM != 1)
 	{
+		//TODO
 		BtorNode *expr1, *expr2, *dif, *or_expr, *mod_expr, *mod;
 		BtorNode *and_expr = NULL;
 		BtorNode *const_expr[LCM + 1], *eq_expr[LCM];

@@ -32,7 +32,7 @@ main(int argc, char *argv[])
 	{
 		input = (BtorNode *)btor->quantifiers->last->key;
 		transform_to_required_form(btor, input);
-		formula = (BtorNode *)btor->quantifiers->last->key;
+		formula = (BtorNode *)btor->quantifiers->last->key; 	
 		exists_var = get_first_exists_var(btor);
 	}
 	else
@@ -96,8 +96,6 @@ main(int argc, char *argv[])
 						int j = without_this_var(btor, lin->expr[i]->e[0], exists_var)? 0 : 1;
 						lin->expr[i]->e[j] = btor_exp_bv_mul(btor, lin->expr[i]->e[j], coef_expr);
 					}
-					/*btor_dumpsmt_dump_node(btor, stdout, lin->expr[i], -1);
-					fprintf(stdout, "\n\n");*/
 				}
 				res_expr = qe_linear_case(btor, lin, LCM, old_bv_size);
 			}
