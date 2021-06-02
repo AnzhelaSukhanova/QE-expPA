@@ -1,0 +1,1 @@
+(not (bvult (bvadd (bvshl #x3 y) (bvshl #x1 z)) (bvadd (bvshl #x1 y) #xa)))

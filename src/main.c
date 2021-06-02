@@ -15,6 +15,7 @@ main(int argc, char *argv[])
 {
 	assert(argc > 1);
 	Btor *btor = btor_new();
+	btor_opt_set(btor, BTOR_OPT_OUTPUT_NUMBER_FORMAT, BTOR_OUTPUT_BASE_HEX);
 	char *error_msg;
 	int status;
 	FILE *fd_in = fopen(argv[1], "r");
@@ -23,6 +24,9 @@ main(int argc, char *argv[])
 	fclose(fd_in);
 	BTOR_ABORT(status, error_msg);
 	False = btor_exp_false(btor);
+
+	double in_t, work_t;
+	in_t = get_time();
 
 	stack_size = get_stack_size(btor);
 	BtorNode *formula, *res_expr, *input;
@@ -121,6 +125,8 @@ main(int argc, char *argv[])
 		else
 			BTOR_ABORT(true, "The formula did not transformed to the required form");
 	}
+	work_t = get_time();
+	//printf("Work: %.12lf\n", work_t - in_t);
 	btor_dumpsmt_dump_node(btor, fd_out, res_expr, -1);
 	fprintf(fd_out, "\n");
 	btor_node_release(btor, res_expr);

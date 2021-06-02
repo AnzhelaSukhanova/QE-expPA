@@ -2,7 +2,6 @@
 #define COURSE_BTOR_TOOLS_H
 
 #include <stdbool.h>
-#include <stdlib.h>
 #include <math.h>
 #include "simp_tools.h"
 
@@ -23,6 +22,8 @@ extern BtorNode *False;
 struct BtorNodeArray
 {
 	BtorNode **expr;
+	BtorNode **left_expr;
+	BtorNode **right_expr;
 	uint size;
 	uint count;
 };

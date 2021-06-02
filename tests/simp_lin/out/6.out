@@ -1,0 +1,1 @@
+(and (not (bvult (bvmul y #x3) z)) (not (bvult t z)))

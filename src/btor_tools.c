@@ -3,11 +3,13 @@
 BtorNodeArray* btornodearr_new(uint size)
 {
 	BtorNodeArray *array = NULL;
-
-	BtorNode *expr[size];
 	if (!(array = (BtorNodeArray*)malloc(sizeof(BtorNodeArray))))
 		exit(3);
 	if (!(array->expr = (BtorNode **)malloc(size * sizeof(BtorNode *))))
+		exit(3);
+	if (!(array->left_expr = (BtorNode **)malloc(size * sizeof(BtorNode *))))
+		exit(3);
+	if (!(array->right_expr = (BtorNode **)malloc(size * sizeof(BtorNode *))))
 		exit(3);
 	array->size = size;
 	array->count = 0;

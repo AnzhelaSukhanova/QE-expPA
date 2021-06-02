@@ -139,11 +139,13 @@ exvar_occurs_kind(Btor *btor, BtorNode *formula, BtorNodeArray *lin, BtorNodeArr
 						else
 						{
 							int k = with_this_var(btor, real_child[j]->e[0], exists_var) ? 0 : 1;
-							BtorNode *sub_expr = int_sub(btor, real_child[j]->e[1 - k], one);
-							BtorNode *add_expr = btor_exp_bv_add(btor, real_child[j]->e[1 - k], one);
-							lin->expr[lin->count] = btor_exp_bv_ult(btor, real_child[j]->e[k], add_expr);
+							lin->expr[lin->count] = expr->e[j];
+							lin->left_expr[lin->count] = real_child[j]->e[k];
+							lin->right_expr[lin->count] = real_child[j]->e[1 - k];
 							lin->count++;
-							lin->expr[lin->count] = btor_exp_bv_ult(btor, sub_expr, real_child[j]->e[k]);
+							lin->expr[lin->count] = expr->e[j];
+							lin->left_expr[lin->count] = real_child[j]->e[1 - k];
+							lin->right_expr[lin->count] = real_child[j]->e[k];
 							lin->count++;
 						}
 					}
@@ -192,6 +194,8 @@ exvar_occurs_kind(Btor *btor, BtorNode *formula, BtorNodeArray *lin, BtorNodeArr
 						if (same_children(expr->e[j], expr->e[1 - j]) && btor_node_is_bv_eq(expr->e[1 - j]))
 						{
 							lin->expr[lin->count] = btor_node_copy(btor, real_child[j]);
+							lin->left_expr[lin->count] = real_child[j]->e[0];
+							lin->right_expr[lin->count] = real_child[j]->e[1];
 							lin->count++;
 						}
 						else
@@ -200,6 +204,8 @@ exvar_occurs_kind(Btor *btor, BtorNode *formula, BtorNodeArray *lin, BtorNodeArr
 							{
 								BtorNode *sub_expr = btor_exp_bv_sub(btor, real_child[j]->e[1], one);
 								lin->expr[lin->count] = btor_exp_bv_ult(btor, real_child[j]->e[0], sub_expr);
+								lin->left_expr[lin->count] = real_child[j]->e[0];
+								lin->right_expr[lin->count] = sub_expr;
 								free_vars->expr[free_vars->count] = btor_exp_bv_ulte(btor, one, real_child[j]->e[1]);
 								free_vars->count++;
 							}
@@ -207,6 +213,8 @@ exvar_occurs_kind(Btor *btor, BtorNode *formula, BtorNodeArray *lin, BtorNodeArr
 							{
 								BtorNode *add_expr = btor_exp_bv_add(btor, real_child[j]->e[0], one);
 								lin->expr[lin->count] = btor_exp_bv_ult(btor, add_expr, real_child[j]->e[1]);
+								lin->left_expr[lin->count] = add_expr;
+								lin->right_expr[lin->count] = real_child[j]->e[1];
 								uint64_t max = pow(2, bv_size) - 1;
 								free_vars->expr[free_vars->count] = btor_exp_bv_ult(btor,
 																		  real_child[j]->e[0],
@@ -234,7 +242,7 @@ qe_linear_case(Btor *btor, BtorNodeArray *ult, uint64_t LCM, int old_bv_size)
 	int i, j = 0, k = 0;
 	for (i = 0; i < ult->count; i++)
 	{
-		if (with_this_var(btor, ult->expr[i]->e[0], exists_var))
+		if (with_this_var(btor, ult->left_expr[i], exists_var))
 		{
 			only_exvar_left[j] = i;
 			left_ult_count++; //number of expressions where free variables are on the right
@@ -259,7 +267,7 @@ qe_linear_case(Btor *btor, BtorNodeArray *ult, uint64_t LCM, int old_bv_size)
 			for (j = 0; j < right_ult_count; j++)
 			{
 				index[1] = only_exvar_right[j];
-				ulte[k] = btor_exp_bv_ulte(btor, ult->expr[index[1]]->e[0], ult->expr[index[0]]->e[1]);
+				ulte[k] = btor_exp_bv_ulte(btor, ult->left_expr[index[1]], ult->right_expr[index[0]]);
 				res_expr = i + j == 0 ? ulte[k] : btor_exp_bv_and(btor, res_expr, ulte[k]);
 				k++;
 			}

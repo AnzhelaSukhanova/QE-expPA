@@ -13,6 +13,7 @@ These tests work with bit vectors of size 4.
 * 9.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq 2\cdot y %2B z\wedge 10\cdot y\leq x">  
 * 10.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq 5\cdot y %2B 7\wedge 8\cdot (y %2B z)\leq x">  
 * 11.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq y %2B ((9 %2B 2) %2B z)">  
+* 12.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:y %2B 15 < x\wedge x < 1">  
 * exp1.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:x\leq (1\ll y)">  
 * exp2.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:3\cdot (1\ll y)\leq x\wedge x\leq 7\cdot (1\ll y)">  
 * exp3.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:(1\ll y)\leq x\wedge 2\leq x\wedge z\leq x">   

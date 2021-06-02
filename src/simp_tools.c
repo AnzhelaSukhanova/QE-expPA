@@ -42,3 +42,10 @@ l2(uint64_t n)
 	}
 	return power;
 }
+
+double get_time()
+{
+	struct timeval t;
+	gettimeofday(&t, NULL);
+	return t.tv_sec + t.tv_usec/1.0e6;
+}

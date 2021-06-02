@@ -23,7 +23,7 @@ The implementation is currently working for formulas like (instead of <img src="
 * <img src="https://render.githubusercontent.com/render/math?math=\exists x:\bigwedge (2^x\leq g_i(\overline{y}))\wedge \bigwedge g_k(\overline{y})">.  
 * Сonjunctions of formulas of the first two types.  
 
-To run all tests and check the output use `bash all_tests.sh` or `bash all_tests.sh <folder>`  if you want to run tests from the specific folder from tests/.
+To run all tests and check the output use `bash all_tests.sh [-check]` or `bash all_tests.sh [-check] <folder>`  if you want to run tests from the specific folder from tests/.
 
 ## About
 More details about the project can be found in **pres/slides.pdf**.
