@@ -21,12 +21,12 @@ lcm(uint64_t n1, uint64_t n2)
 	return (n1*n2)/gcf(n1, n2);
 }
 
-uint64_t max(uint64_t a, uint64_t b)
+int64_t max(int64_t a, int64_t b)
 {
 	return (a > b) ? a : b;
 }
 
-uint64_t max3(uint64_t a, uint64_t b, uint64_t c)
+int64_t max3(int64_t a, int64_t b, int64_t c)
 {
 	return max(max(a, b), c);
 }

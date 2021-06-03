@@ -49,7 +49,6 @@ main(int argc, char *argv[])
 	while(btor->exists_vars->count != 0)
 	{
 		bv_size = btor_sort_bv_get_width(btor, btor_node_get_sort_id(exists_var));
-		//printf_exprs_info(btor);
 		uint expr_num = (int)stack_size/4 + 1; //approximately
 		BtorNodeArray *lin = btornodearr_new(expr_num);
 		BtorNodeArray *exp = btornodearr_new(expr_num);

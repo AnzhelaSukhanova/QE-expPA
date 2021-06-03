@@ -29,6 +29,10 @@ do
    	 done
 done
 
-#rm check
+if [ ! -z $1 ] && [ $1 == "-check" ]
+then
+	rm check
+fi
+
 cd ..
 

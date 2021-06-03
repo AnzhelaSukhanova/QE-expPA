@@ -318,9 +318,9 @@ qe_linear_case(Btor *btor, BtorNodeArray *ult, uint64_t LCM, int old_bv_size)
 BtorNode *
 qe_exp_case(Btor *btor, BtorNode *exp_expr, BtorNodeArray *lin)
 {
-	BtorNode *l2_expr[2], *free_expr, *case_expr[3], *res_expr, *subcase;
+	BtorNode *free_expr, *or_expr, *res_expr, *subcase;
 	BtorNode *coef[3], *l2_coef[3];
-	uint64_t b, c, N;
+	int64_t b, c, N, b_p, b_m, c_p, c_m;
 	bool left_ulte = true;
 	for (int j = 0; j < 3; j++)
 		coef[j] = zero;
@@ -337,48 +337,40 @@ qe_exp_case(Btor *btor, BtorNode *exp_expr, BtorNodeArray *lin)
 	}
 	for (int j = 0; j < 3; j++)
 		l2_coef[j] = l2(btor, coef[j]);
-	b = 2*btornode_to_uint64(btor, l2_coef[1]) + 3;
-	c = btornode_to_uint64(btor, l2_coef[2]) + 3;
-	N = max3(b, c, 0);
-	BtorNode *const_expr[N + 1];
-	l2_expr[0] = btor_exp_bv_sub(btor, l2(btor, free_expr), l2_coef[0]);
-	l2_expr[1] = btor_exp_bv_add(btor, l2_expr[0], one);
+	b = btornode_to_uint64(btor, l2_coef[1]);
+	c = btornode_to_uint64(btor, l2_coef[2]);
+	int64_t lim = pow(2, bv_size) - 1;
 	if (left_ulte)
 	{
-		case_expr[0] = replace_exvar(btor, exp_expr, l2_expr[0]);
-		case_expr[1] = replace_exvar(btor, exp_expr, l2_expr[1]);
-		if (lin->count)
-			case_expr[0] = qe_replacement(btor, case_expr[0], l2_expr[0], lin);
-		if (lin->count)
-			case_expr[1] = qe_replacement(btor, case_expr[0], l2_expr[0], lin);
+		b_p = b==lim? 0 : 2*(b + 3);
+		b_m = 0;
+		c_p = c==lim? 0 : c + 3;
+		c_m = 0;
 	}
+	else
+	{
+		b_p = 0;
+		b_m = b==lim? 0 : 2*(b + 4);
+		c_p = 0;
+		c_m = c==lim? 0 : c + 4;
+	}
+	b = max(b_p, b_m);
+	c = max(c_p, c_m);
+	N = max3(b, c, 2*bv_size);
+	BtorNode *const_expr[N + 1];
 	const_expr[0] = zero;
-	case_expr[2] = replace_exvar(btor, exp_expr, const_expr[0]);
+	or_expr = replace_exvar(btor, exp_expr, const_expr[0]);
 	if (lin->count)
-		case_expr[2] = qe_replacement(btor, case_expr[2], const_expr[0], lin);
+		or_expr = qe_replacement(btor, or_expr, const_expr[0], lin);
 	for (int j = 1; j <= N; j++)
 	{
 		const_expr[j] = uint64_to_btornode(btor, j, bv_size);
 		subcase = replace_exvar(btor, exp_expr, const_expr[j]);
 		if (lin->count)
 			subcase = qe_replacement(btor, subcase, const_expr[j], lin);
-		case_expr[2] = btor_exp_bv_or(btor, case_expr[2], subcase);
+		or_expr = btor_exp_bv_or(btor, or_expr, subcase);
 	}
-	if (left_ulte)
-	{
-		res_expr = case_expr[0];
-		for (int j = 1; j < 3; j++)
-			res_expr = btor_exp_bv_or(btor, res_expr, case_expr[j]);
-		for (int j = 0; j < 3; j++)
-			btor_node_release(btor, case_expr[j]);
-	}
-	else
-	{
-		res_expr = btor_node_copy(btor, case_expr[2]);
-		btor_node_release(btor, case_expr[2]);
-	}
-	for (int j = 0; j < 2; j++)
-		btor_node_release(btor, l2_expr[j]);
+	res_expr = or_expr;
 	btor_node_release(btor, free_expr);
 	return res_expr;
 }

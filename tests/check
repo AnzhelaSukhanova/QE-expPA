@@ -1,7 +1,0 @@
-(set-option :produce-models true)
-(set-logic BV)
-(declare-fun y () (_ BitVec 4))
-(assert (xor (
- (exists ((x (_ BitVec 4))) (or (bvult (bvadd (bvshl #b0001 x) x) (bvadd (bvadd (bvshl #b0001 y) y) #b0001)) (= (bvadd (bvshl #b0001 x) x) (bvadd (bvadd (bvshl #b0001 y) y) #b0001)))))
-(let (($e1 (bvadd y (bvshl #x1 y)))) (let (($e2 (bvadd #x1 $e1))) (let (($e3 (ite (bvult $e2 #x8) (ite (bvult $e2 #x4) (ite (bvult $e2 #x2) (ite (= $e1 #xf) #xf #x0) #x1) #x2) #x3))) (let (($e4 (bvadd #x1 $e3))) (let (($e5 (bvult #x1 $e2))) (let (($e6 (bvult #x3 $e2))) (let (($e7 (bvult #x6 $e2))) (let (($e8 (bvult #xb $e2))) (not (and (not $e6) (not $e5) (not $e7) (not $e8) (not (bvult #x4 $e2)) (not (bvult #x5 $e2)) (not $e7) (not (bvult #x7 $e2)) (not (bvult #x8 $e2)) (not (bvult #x9 $e2)) (not (bvult #xa $e2)) (not $e8) (not (bvult #xc $e2)) (not (bvult #xd $e2)) (not (bvult #xe $e2)) (not $e5) (not $e6) (not (bvult (bvadd $e4 (bvshl #x1 $e4)) $e2)) (not (bvult (bvadd $e3 (bvshl #x1 $e3)) $e2)) (not $e7)))))))))))
-))

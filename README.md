@@ -20,8 +20,7 @@ The folder **tests** contains five subfolders:
 
 The implementation is currently working for formulas like (instead of <img src="https://render.githubusercontent.com/render/math?math=\exists">there can be <img src="https://render.githubusercontent.com/render/math?math=\forall">, instead of ≤ there can be < or =)
 * <img src="https://render.githubusercontent.com/render/math?math=\exists x:\bigwedge (g_j(\overline{y})\leq x \wedge \bigwedge x\leq g_i(\overline{y}))\wedge \bigwedge g_k(\overline{y})">, where <img src="https://render.githubusercontent.com/render/math?math=\overline{y}"> — free variables, <img src="https://render.githubusercontent.com/render/math?math=g_i(\overline{y}), g_j(\overline{y}), g_k(\overline{y})"> — terms in the signature of Presburger arithmetic expanded by <img src="https://render.githubusercontent.com/render/math?math=2^x">.  
-* <img src="https://render.githubusercontent.com/render/math?math=\exists x:\bigwedge (2^x\leq g_i(\overline{y}))\wedge \bigwedge g_k(\overline{y})">.  
-* Сonjunctions of formulas of the first two types.  
+* <img src="https://render.githubusercontent.com/render/math?math=\exists x:\bigwedge (2^x\leq g_i(\overline{y})\vee g_i(\overline{y})\leq 2^x)\wedge \bigwedge g_k(\overline{y})">.  
 
 To run all tests and check the output use `bash all_tests.sh [-check]` or `bash all_tests.sh [-check] <folder>`  if you want to run tests from the specific folder from tests/.
 
