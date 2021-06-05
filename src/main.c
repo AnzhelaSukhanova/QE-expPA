@@ -106,12 +106,15 @@ main(int argc, char *argv[])
 			{
 				res_expr = qe_exp_case(btor, exp->expr[0], lin);
 			}
+			BtorNode *qe_expr = res_expr, *part;
 			for (int i = 0; i < free_vars->count; i++)
 			{
-				if (is_inverted)
-					res_expr = res_expr == NULL? free_vars->expr[i] : btor_exp_bv_or(btor, res_expr, free_vars->expr[i]);
+				part = qe_expr==NULL ? free_vars->expr[i] : btor_exp_bv_and(btor, qe_expr, free_vars->expr[i]);
+				if (res_expr==qe_expr)
+					res_expr = part;
 				else
-					res_expr = res_expr == NULL? free_vars->expr[i] : btor_exp_bv_and(btor, res_expr, free_vars->expr[i]);
+					res_expr =
+						is_inverted ? btor_exp_bv_or(btor, res_expr, part) : btor_exp_bv_and(btor, res_expr, part);
 			}
 			if (is_inverted)
 				res_expr = btor_node_invert(res_expr);
@@ -125,7 +128,7 @@ main(int argc, char *argv[])
 			BTOR_ABORT(true, "The formula did not transformed to the required form");
 	}
 	work_t = get_time();
-	//printf("Work: %.12lf\n", work_t - in_t);
+	//printf("Running time: %.12lf\n", work_t - in_t);
 	btor_dumpsmt_dump_node(btor, fd_out, res_expr, -1);
 	fprintf(fd_out, "\n");
 	btor_node_release(btor, res_expr);

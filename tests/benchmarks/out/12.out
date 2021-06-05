@@ -1,0 +1,1 @@
+(and (= (bvshl #x01 y) #xf6) (= (bvadd (bvshl #x03 y) (bvshl #x01 z)) #xff))

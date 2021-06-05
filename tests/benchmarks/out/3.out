@@ -1,1 +1,1 @@
-false
+(and (= (bvmul y #xc) #xf) (= (bvmul y #x3) #x0))
