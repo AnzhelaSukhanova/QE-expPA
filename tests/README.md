@@ -1,4 +1,23 @@
-These tests work with bit vectors of size 4.  
+**benchmarks** contains the following examples (n — bit vector size):
+* DeltaTR\_RFRNC\_OUT\_QESMT\_benchmark\_conjunction\_38.smt.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x.\ x\geqslant 9505"> (n = 16)  
+* 2.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x.\ y\leq x\wedge 2\leq x\wedge z\leq x"> (n = 4)  
+* 3.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\forall x.\ 3\cdot y\leq x\wedge x\leq 12\cdot y"> (n = 4)  
+* 4.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x.\ x\leq 997\cdot y\wedge z\leq x\wedge x\leq t"> (n = 10)  
+* 5.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x.\ x\leq 2\cdot y %2B z\wedge 10\cdot y\leq x"> (n = 6)  
+* 6.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x.\ x\leq 5\cdot y %2B 7\wedge 8\cdot (y %2B z)\leq x"> (n = 8)  
+* 7.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x.\ y %2B 15 < x\wedge x < 1"> (n = 4)  
+* 8.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x.\ 3\cdot (1\ll y)\leq x\wedge x\leq 7\cdot (1\ll y)"> (n = 4)  
+* 9.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\forall x.\ (1\ll y)\leq x\wedge 2\leq x\wedge z\leq x"> (n = 4)  
+* 10.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x.\ 3\cdot (1\ll y)\leq x\wedge x\leq 12\cdot y"> (n = 6)  
+* 11.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x.\ x\leq 3\cdot (1\ll y)\wedge (1\ll z)\leq x\wedge x\leq t"> (n = 6)  
+* 12.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\forall x.\ x\leq 2\cdot (1\ll y) %2B (1\ll z)\wedge 10\cdot (1\ll y)\leq x"> (n = 8)  
+* 13.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x.\ x\leq 5\cdot (1\ll y) %2B 7\wedge 8\cdot ((1\ll y) %2B z)\leq x"> (n = 8)  
+* 14.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x.\ (1\ll x)\leq (1\ll y) %2B 11\cdot y %2B 4"> (n = 4)  
+* 15.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x.\ (1\ll x)\leq y %2B 3\cdot z %2B 8"> (n = 6)  
+* 16.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x.\ (1\ll x)\leq 7\cdot y\wedge (1\ll x)\leq z\wedge (1\ll x)\leq (1\ll t)"> (n = 8)  
+
+
+The following tests — formulas in the theory of bit vectors of size 4.  
 
 **simp_lin** contains the following examples:  
 * 0.smt2 — <img src="https://render.githubusercontent.com/render/math?math=\exists x:15 < x">  

@@ -1,0 +1,1 @@
+(not (bvult (bvadd z (bvmul y #b000011)) (bvadd y #b001010)))

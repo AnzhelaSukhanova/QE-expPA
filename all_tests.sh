@@ -5,7 +5,7 @@ IN='*.smt2'
 
 if [ -z $2 ]
 then
-	CASE="simp_lin simp_exp simp_mix lin exp"
+	CASE="simp_lin simp_exp simp_mix lin exp benchmarks"
 else
 	CASE=$2
 fi

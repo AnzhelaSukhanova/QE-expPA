@@ -22,8 +22,6 @@ extern BtorNode *False;
 struct BtorNodeArray
 {
 	BtorNode **expr;
-	BtorNode **left_expr;
-	BtorNode **right_expr;
 	uint size;
 	uint count;
 };

@@ -1,0 +1,1 @@
+(let (($e1 (bvshl #b000001 z))) (and (not (bvult (bvshl #b000011 y) $e1)) (not (bvult t $e1))))
