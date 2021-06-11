@@ -26,4 +26,4 @@ The implementation is currently working for formulas like (instead of <img src="
 To run all tests and check the output use `bash all_tests.sh [-check]` or `bash all_tests.sh [-check] <folder>`  if you want to run tests from the specific folder from tests/.
 
 ## About
-More details about the project can be found in **pres/slides.pdf**.
+More details about the project can be found in **pres/course.pdf** and **pres/slides.pdf**.
