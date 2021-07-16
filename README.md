@@ -12,7 +12,7 @@ If you want check the result use `python check.py tests/<test_file> <out_file>`
 
 ## Tests
 The folder **tests** contains five subfolders:  
-* **benchmarks** contains tests used for conducting the experiments reported in the report. 
+* **benchmarks** contains tests used for conducting the experiments reported in the report;  
 * **simp_lin** contains tests with a trivial occurrence of the bound variable;  
 * **simp_exp** contains those tests in which the bound variable occurs trivially in an exponential term;  
 * **simp_mix** contains tests with conjunctions of formulas of said two types;  
